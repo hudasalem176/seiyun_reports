@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
         colorScheme: myColorScheme,
       ),
       routes: {
-        '/': (context) => WelcomePage(),
+        '/': (context) => LoginScreen(),
         '/HomeScreen': (context) => HomeScreen(),
       },
     );
