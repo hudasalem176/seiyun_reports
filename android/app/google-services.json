@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "496638177733",
+    "project_id": "reports-app-dc046",
+    "storage_bucket": "reports-app-dc046.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:496638177733:android:61e3838140d3fb61d71bac",
+        "android_client_info": {
+          "package_name": "com.example.seiyun_reports_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD48VmKtsO6fT1I3xww5G9mFwJN819OkXI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
