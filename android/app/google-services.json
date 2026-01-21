@@ -12,7 +12,20 @@
           "package_name": "com.example.seiyun_reports_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "496638177733-scbh9flojs2mkdf41pbhijlliuokhhio.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.seiyun_reports_app",
+            "certificate_hash": "c4bfaf35e229d725c31df6b9b0eba7c23d09da1b"
+          }
+        },
+        {
+          "client_id": "496638177733-mu207iaj21qnuck4n3t3iap8vvr8eko6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyD48VmKtsO6fT1I3xww5G9mFwJN819OkXI"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "496638177733-mu207iaj21qnuck4n3t3iap8vvr8eko6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "496638177733-ulnmfvkfkdej7magdu86ovqsdctdap6q.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.seiyunReportsApp"
+              }
+            }
+          ]
         }
       }
     }
