@@ -2,7 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:seiyun_reports_app/screens/Auth.dart';
-import 'package:seiyun_reports_app/screens/Home_Screen.dart';
+import 'package:seiyun_reports_app/screens/Home.dart';
+import 'package:seiyun_reports_app/screens/Report.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      locale: Locale('ar', 'YE'),
       title: 'Seiyun Reports App',
 
       // 1. إعدادات الثيم (Theme)

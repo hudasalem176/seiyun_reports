@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:seiyun_reports_app/screens/Home_Screen.dart';
+import 'package:seiyun_reports_app/screens/Home.dart';
 
 // تعريف الألوان
 const primaryGreen = Color(0xFF2E7D32);
@@ -56,7 +56,7 @@ class _AuthScreenState extends State<AuthScreen> {
       _showErrorSnackBar("Please enter your email and password");
       return;
     }
-    if (_nameController.text.trim().isEmpty) {
+    if (_nameController.text.trim().isEmpty && isSignupMode) {
       _showErrorSnackBar("Please enter your full name");
       return;
     }
