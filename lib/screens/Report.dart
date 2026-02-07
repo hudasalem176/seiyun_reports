@@ -1,4 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({super.key});
@@ -13,15 +16,101 @@ class _ReportScreenState extends State<ReportScreen> {
   String selectedPriority = 'مرتفعة';
   final TextEditingController _descriptionController = TextEditingController();
 
+  File? _image; // لتخزين الصورة الملتقطة
+  String _locationStatus = "سيئون ، حي الوحدة"; // نص الموقع الافتراضي
+  bool _isLoadingLocation = false; // لحالة تحميل الموقع
+
   // قائمة الفئات المعروضة في الشبكة
   final List<Map<String, dynamic>> categories = [
-    {'id': 'نفايات', 'label': 'نفايات', 'icon': Icons.delete_outline, 'color': const Color(0xFF27ae60), 'bg': const Color(0xFFe8f5e9)},
-    {'id': 'بناء', 'label': 'بناء وصيانة', 'icon': Icons.construction, 'color': const Color(0xFFe67e22), 'bg': const Color(0xFFfff3e0)},
-    {'id': 'إنارة', 'label': 'إنارة', 'icon': Icons.lightbulb_outline, 'color': const Color(0xFFf1c40f), 'bg': const Color(0xFFfef9e7)},
-    {'id': 'مياه', 'label': 'مياه', 'icon': Icons.opacity, 'color': const Color(0xFF3498db), 'bg': const Color(0xFFebf5fb)},
-    {'id': 'حدائق', 'label': 'حدائق', 'icon': Icons.park_outlined, 'color': const Color(0xFF1abc9c), 'bg': const Color(0xFFeafff5)},
-    {'id': 'أخرى', 'label': 'أخرى', 'icon': Icons.help_outline, 'color': const Color(0xFF95a5a6), 'bg': const Color(0xFFf4f6f7)},
+    {
+      'id': 'نفايات',
+      'label': 'نفايات',
+      'icon': Icons.delete_outline,
+      'color': const Color(0xFF27ae60),
+      'bg': const Color(0xFFe8f5e9),
+    },
+    {
+      'id': 'بناء',
+      'label': 'بناء وصيانة',
+      'icon': Icons.construction,
+      'color': const Color(0xFFe67e22),
+      'bg': const Color(0xFFfff3e0),
+    },
+    {
+      'id': 'إنارة',
+      'label': 'إنارة',
+      'icon': Icons.lightbulb_outline,
+      'color': const Color(0xFFf1c40f),
+      'bg': const Color(0xFFfef9e7),
+    },
+    {
+      'id': 'مياه',
+      'label': 'مياه',
+      'icon': Icons.opacity,
+      'color': const Color(0xFF3498db),
+      'bg': const Color(0xFFebf5fb),
+    },
+    {
+      'id': 'حدائق',
+      'label': 'حدائق',
+      'icon': Icons.park_outlined,
+      'color': const Color(0xFF1abc9c),
+      'bg': const Color(0xFFeafff5),
+    },
+    {
+      'id': 'أخرى',
+      'label': 'أخرى',
+      'icon': Icons.help_outline,
+      'color': const Color(0xFF95a5a6),
+      'bg': const Color(0xFFf4f6f7),
+    },
   ];
+
+  // دالة التقاط الصورة
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    try {
+      final XFile? photo = await picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 70, // لتقليل حجم الصورة قبل إرسالها لـ Laravel
+      );
+
+      if (photo != null) {
+        setState(() {
+          _image = File(photo.path);
+        });
+      }
+    } catch (e) {
+      debugPrint("Error picking image: $e");
+    }
+  }
+
+  // دالة تحديد الموقع الجغرافي
+  Future<void> _getCurrentLocation() async {
+    setState(() => _isLoadingLocation = true);
+
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.whileInUse ||
+          permission == LocationPermission.always) {
+        Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+        );
+        setState(() {
+          _locationStatus =
+              "إحداثيات: ${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}";
+          _isLoadingLocation = false;
+        });
+      }
+    } catch (e) {
+      setState(() => _isLoadingLocation = false);
+      debugPrint("Error location: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +154,7 @@ class _ReportScreenState extends State<ReportScreen> {
                     const SizedBox(height: 40),
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -95,12 +184,20 @@ class _ReportScreenState extends State<ReportScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                icon: const Icon(Icons.chevron_right, color: Colors.white, size: 30),
+                icon: const Icon(
+                  Icons.chevron_right,
+                  color: Colors.white,
+                  size: 30,
+                ),
                 onPressed: () => Navigator.maybePop(context),
               ),
               const Text(
                 "بلاغ جديد",
-                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(width: 48),
             ],
@@ -117,7 +214,7 @@ class _ReportScreenState extends State<ReportScreen> {
               "ساعد في تحسين مدينتك من خلال الإبلاغ عن المشكلات، سنعمل على حلها في أقرب وقت.",
               style: TextStyle(color: Colors.white, fontSize: 13, height: 1.6),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -146,7 +243,8 @@ class _ReportScreenState extends State<ReportScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(22),
               border: Border.all(
-                color: isSelected ? const Color(0xFF2ecc71) : Colors.grey.shade200,
+                color:
+                    isSelected ? const Color(0xFF2ecc71) : Colors.grey.shade200,
                 width: isSelected ? 2.5 : 1,
               ),
               boxShadow: [
@@ -154,7 +252,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   color: Colors.black.withOpacity(0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 5),
-                )
+                ),
               ],
             ),
             child: Column(
@@ -172,8 +270,11 @@ class _ReportScreenState extends State<ReportScreen> {
                 const SizedBox(height: 10),
                 Text(
                   cat['label'],
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                )
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
           ),
@@ -186,11 +287,23 @@ class _ReportScreenState extends State<ReportScreen> {
   Widget _buildPrioritySelector() {
     return Row(
       children: [
-        _priorityItem("منخفضة", const Color(0xFFdcfce7), const Color(0xFF166534)),
+        _priorityItem(
+          "منخفضة",
+          const Color(0xFFdcfce7),
+          const Color(0xFF166534),
+        ),
         const SizedBox(width: 10),
-        _priorityItem("متوسطة", const Color(0xFFfef9c3), const Color(0xFF854d0e)),
+        _priorityItem(
+          "متوسطة",
+          const Color(0xFFfef9c3),
+          const Color(0xFF854d0e),
+        ),
         const SizedBox(width: 10),
-        _priorityItem("مرتفعة", const Color(0xFFfee2e2), const Color(0xFF991b1b)),
+        _priorityItem(
+          "مرتفعة",
+          const Color(0xFFfee2e2),
+          const Color(0xFF991b1b),
+        ),
       ],
     );
   }
@@ -205,7 +318,10 @@ class _ReportScreenState extends State<ReportScreen> {
           decoration: BoxDecoration(
             color: bg,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: isActive ? text : Colors.transparent, width: 2.5),
+            border: Border.all(
+              color: isActive ? text : Colors.transparent,
+              width: 2.5,
+            ),
           ),
           child: Text(
             label,
@@ -221,7 +337,6 @@ class _ReportScreenState extends State<ReportScreen> {
     );
   }
 
-  // بطاقة الموقع
   Widget _buildLocationCard() {
     return Container(
       padding: const EdgeInsets.all(15),
@@ -234,60 +349,113 @@ class _ReportScreenState extends State<ReportScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: const Icon(Icons.location_on, color: Colors.red, size: 22),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("سيئون ، حي الوحدة", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                Text("الموقع الحالي للمخالفة", style: TextStyle(fontSize: 11, color: Color(0xFF64748b))),
+                Text(
+                  _locationStatus,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Text(
+                  "الموقع الحالي للمخالفة",
+                  style: TextStyle(fontSize: 11, color: Color(0xFF64748b)),
+                ),
               ],
             ),
           ),
-          TextButton(
-            onPressed: () {},
-            style: TextButton.styleFrom(
-              backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-            child: const Text("تعديل", style: TextStyle(fontSize: 12, color: Colors.black)),
-          )
+          _isLoadingLocation
+              ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+              : TextButton(
+                onPressed: _getCurrentLocation,
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text(
+                  "تحديد",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
         ],
       ),
     );
   }
 
-  // مساحة اختيار الصورة
   Widget _buildImagePicker() {
-    return Container(
-      width: double.infinity,
-      height: 150,
-      decoration: BoxDecoration(
-        color: const Color(0xFFf8fafc),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: OutlinedButton(
-        onPressed: () {},
-        style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: Color(0xFFcbd5e1), width: 2, style: BorderStyle.solid),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+    return GestureDetector(
+      onTap: _pickImage,
+      child: Container(
+        width: double.infinity,
+        height: 200, // زيادة الطول قليلاً لعرض الصورة بشكل أوضح
+        decoration: BoxDecoration(
+          color: const Color(0xFFf8fafc),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: const Color(0xFFcbd5e1), width: 2),
+          image:
+              _image != null
+                  ? DecorationImage(
+                    image: FileImage(_image!),
+                    fit: BoxFit.cover,
+                  )
+                  : null,
         ),
-        child: const Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.camera_alt_outlined, size: 38, color: Color(0xFF94a3b8)),
-            SizedBox(height: 12),
-            Text("اضغط لالتقاط صورة للمخالفة", style: TextStyle(color: Color(0xFF94a3b8), fontSize: 14)),
-          ],
-        ),
+        child:
+            _image == null
+                ? const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.camera_alt_outlined,
+                      size: 42,
+                      color: Color(0xFF94a3b8),
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      "اضغط لالتقاط صورة للمخالفة",
+                      style: TextStyle(color: Color(0xFF94a3b8), fontSize: 14),
+                    ),
+                  ],
+                )
+                : Stack(
+                  children: [
+                    Positioned(
+                      top: 10,
+                      right: 10,
+                      child: CircleAvatar(
+                        backgroundColor: Colors.red.withOpacity(0.8),
+                        child: IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white),
+                          onPressed: () => setState(() => _image = null),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
       ),
     );
   }
 
-  // حقل الملاحظات
   Widget _buildDescriptionField() {
     return TextField(
       controller: _descriptionController,
@@ -296,13 +464,18 @@ class _ReportScreenState extends State<ReportScreen> {
         hintText: "صف المشكلة بدقة لمساعدة الفريق الميداني...",
         filled: true,
         fillColor: Colors.white,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: const BorderSide(color: Color(0xFFe2e8f0))),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: const BorderSide(color: Color(0xFFe2e8f0))),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: const BorderSide(color: Color(0xFFe2e8f0)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: const BorderSide(color: Color(0xFFe2e8f0)),
+        ),
       ),
     );
   }
 
-  // بطاقة نظام النقاط
   Widget _buildPointsInfo() {
     return Container(
       padding: const EdgeInsets.all(18),
@@ -319,49 +492,54 @@ class _ReportScreenState extends State<ReportScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("نظام النقاط", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF5b21b6))),
                 Text(
+                  "نظام النقاط",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF5b21b6),
+                  ),
+                ),
+                const Text(
                   "ستحصل على 100 نقطة عند قبول البلاغ، و 250 نقطة إذا تم تصنيفه كحالة طارئة.",
-                  style: TextStyle(fontSize: 12, color: Color(0xFF6d28d9), height: 1.4),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF6d28d9),
+                    height: 1.4,
+                  ),
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
   }
 
-  // زر الإرسال
   Widget _buildSubmitButton() {
     return ElevatedButton(
       onPressed: () {
-        // منطق الإرسال إلى Laravel API
-        debugPrint("Sending Report: $selectedCategory - Priority: $selectedPriority");
+        debugPrint(
+          "Sending: $selectedCategory, Location: $_locationStatus, Image: ${_image?.path}",
+        );
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFF27ae60),
         minimumSize: const Size(double.infinity, 65),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        elevation: 5,
-        shadowColor: const Color(0xFF27ae60).withOpacity(0.4),
       ),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            "إرسال البلاغ للصندوق",
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-          SizedBox(width: 12),
-          Icon(Icons.send, color: Colors.white, size: 20),
-        ],
+      child: const Text(
+        "إرسال البلاغ للصندوق",
+        style: TextStyle(
+          fontSize: 17,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
       ),
     );
   }
 }
 
-// أنماط نصوص العناوين
 const sectionTitleStyle = TextStyle(
   fontSize: 16,
   color: Color(0xFF0f172a),
