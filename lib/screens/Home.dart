@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:seiyun_reports_app/screens/MyReports.dart';
+import 'package:seiyun_reports_app/screens/NewsTips.dart';
 import 'package:seiyun_reports_app/screens/Report.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -67,8 +70,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // الجزء العلوي: الترحيب والبحث
   Widget _buildHeader() {
+    final User? user = FirebaseAuth.instance.currentUser;
+    String name = user?.displayName ?? "مستخدم";
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.only(top: 60, left: 25, right: 25, bottom: 30),
@@ -93,12 +98,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Row(
                     children: [
-                      const Text("أهلاً، محمد", style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+                      Text("أهلاً، $name",
+                          style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
                       const SizedBox(width: 5),
                       const Text("👋", style: TextStyle(fontSize: 20)),
                     ],
                   ),
-                  const Text("حي القرن، سيئون", style: TextStyle(color: Colors.white70, fontSize: 13)),
+                  Text(user?.email ?? "حي القرن، سيئون",
+                      style: const TextStyle(color: Colors.white70, fontSize: 13)),
                 ],
               ),
               Stack(
@@ -236,7 +243,19 @@ class _HomeScreenState extends State<HomeScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(title, style: sectionTitleStyle),
-        Text(action, style: const TextStyle(color: Color(0xFF27ae60), fontSize: 13, fontWeight: FontWeight.bold)),
+        TextButton(
+            child: Text(action, style: const TextStyle(color: Color(0xFF27ae60), fontSize: 13, fontWeight: FontWeight.bold)),
+            onPressed: () {
+              if(title == 'البلاغات الأخيرة') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ReportScreen()),
+                );
+              }
+              else {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const NewsTipsPage()),);
+              }
+            }),
       ],
     );
   }
@@ -364,24 +383,37 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _navItem(Icons.home, "الرئيسية", true),
-            _navItem(Icons.map_outlined, "الخريطة", false),
+            _navItem(Icons.home, "الرئيسية", true, () {
+            }),
+            _navItem(Icons.map_outlined, "الخريطة", false, () {
+            }),
             const SizedBox(width: 40), // مساحة للزر العائم
-            _navItem(Icons.assignment_outlined, "بلاغاتي", false),
-            _navItem(Icons.person_outline, "الملف الشخصي", false),
+            _navItem(Icons.assignment_outlined, "بلاغاتي", false, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const MyReportsPage()),
+              );
+            }),
+            _navItem(Icons.person_outline, "الملف الشخصي", false, () {
+
+            }),
           ],
         ),
       ),
     );
   }
 
-  Widget _navItem(IconData icon, String label, bool isActive) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, color: isActive ? const Color(0xFF27ae60) : Colors.grey, size: 24),
-        Text(label, style: TextStyle(color: isActive ? const Color(0xFF27ae60) : Colors.grey, fontSize: 10)),
-      ],
+  Widget _navItem(IconData icon, String label, bool isActive, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque, // لضمان استجابة منطقة اللمس بالكامل
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: isActive ? const Color(0xFF27ae60) : Colors.grey, size: 24),
+          Text(label, style: TextStyle(color: isActive ? const Color(0xFF27ae60) : Colors.grey, fontSize: 10)),
+        ],
+      ),
     );
   }
 }

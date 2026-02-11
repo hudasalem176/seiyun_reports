@@ -98,7 +98,7 @@ class _AuthScreenState extends State<AuthScreen> {
       }
 
       final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      await googleUser.authentication;
       final OAuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
@@ -135,25 +135,25 @@ class _AuthScreenState extends State<AuthScreen> {
           isSignupMode
               ? Container()
               : Positioned(
-                top: 50,
-                left: 20,
-                child: TextButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      isSignupMode = true;
-                    });
-                  },
-                  icon: const Icon(
-                    Icons.arrow_back_ios,
-                    color: Colors.white,
-                    size: 18,
-                  ),
-                  label: const Text(
-                    "Back",
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                ),
+            top: 50,
+            left: 20,
+            child: TextButton.icon(
+              onPressed: () {
+                setState(() {
+                  isSignupMode = true;
+                });
+              },
+              icon: const Icon(
+                Icons.arrow_back_ios,
+                color: Colors.white,
+                size: 18,
               ),
+              label: const Text(
+                "Back",
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            ),
+          ),
 
           Align(
             alignment: Alignment.bottomCenter,
@@ -171,140 +171,140 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
               ),
               child:
-                  isLoading
-                      ? const Center(
-                        child: CircularProgressIndicator(color: primaryGreen),
-                      )
-                      : SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            const Icon(
-                              Icons.forest_rounded,
-                              color: primaryGreen,
-                              size: 40,
+              isLoading
+                  ? const Center(
+                child: CircularProgressIndicator(color: primaryGreen),
+              )
+                  : SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const Icon(
+                      Icons.forest_rounded,
+                      color: primaryGreen,
+                      size: 40,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      isSignupMode ? 'Get Started' : 'Welcome Back',
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: primaryGreen,
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+
+                    if (isSignupMode) ...[
+                      buildTextField(
+                        "Full Name",
+                        "Enter Full Name",
+                        _nameController,
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+
+                    buildTextField(
+                      "Email",
+                      "Enter Email",
+                      _emailController,
+                    ),
+                    const SizedBox(height: 20),
+                    buildTextField(
+                      "Password",
+                      "Enter Password",
+                      _passwordController,
+                      isPassword: true,
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    // زر الدخول/التسجيل
+                    SizedBox(
+                      width: double.infinity,
+                      height: 55,
+                      child: ElevatedButton(
+                        onPressed: _handleEmailAuth,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryBrown,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        child: Text(
+                          isSignupMode ? 'Sign up' : 'Log in',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 25),
+
+                    // جوجل
+                    InkWell(
+                      onTap: _handleGoogleSignIn,
+                      child: Row(
+                        children: [
+                          const Expanded(child: Divider()),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
                             ),
-                            const SizedBox(height: 10),
-                            Text(
-                              isSignupMode ? 'Get Started' : 'Welcome Back',
-                              style: const TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: primaryGreen,
-                              ),
-                            ),
-                            const SizedBox(height: 30),
-
-                            if (isSignupMode) ...[
-                              buildTextField(
-                                "Full Name",
-                                "Enter Full Name",
-                                _nameController,
-                              ),
-                              const SizedBox(height: 20),
-                            ],
-
-                            buildTextField(
-                              "Email",
-                              "Enter Email",
-                              _emailController,
-                            ),
-                            const SizedBox(height: 20),
-                            buildTextField(
-                              "Password",
-                              "Enter Password",
-                              _passwordController,
-                              isPassword: true,
-                            ),
-
-                            const SizedBox(height: 30),
-
-                            // زر الدخول/التسجيل
-                            SizedBox(
-                              width: double.infinity,
-                              height: 55,
-                              child: ElevatedButton(
-                                onPressed: _handleEmailAuth,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: primaryBrown,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                ),
-                                child: Text(
-                                  isSignupMode ? 'Sign up' : 'Log in',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            const SizedBox(height: 25),
-
-                            // جوجل
-                            InkWell(
-                              onTap: _handleGoogleSignIn,
-                              child: Row(
-                                children: [
-                                  const Expanded(child: Divider()),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Image.asset(
-                                          'assets/google.png',
-                                          width: 20,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          isSignupMode
-                                              ? "Sign up with Google"
-                                              : "Log in with Google",
-                                          style: const TextStyle(
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const Expanded(child: Divider()),
-                                ],
-                              ),
-                            ),
-
-                            const SizedBox(height: 25),
-
-                            // التبديل بين الحالتين
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                            child: Row(
                               children: [
+                                Image.asset(
+                                  'assets/google.png',
+                                  width: 20,
+                                ),
+                                const SizedBox(width: 8),
                                 Text(
                                   isSignupMode
-                                      ? "Already have an account? "
-                                      : "Don't have an account? ",
-                                ),
-                                GestureDetector(
-                                  onTap:
-                                      () => setState(
-                                        () => isSignupMode = !isSignupMode,
-                                      ),
-                                  child: Text(
-                                    isSignupMode ? "Log in" : "Sign up",
-                                    style: const TextStyle(
-                                      color: Colors.blue,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                      ? "Sign up with Google"
+                                      : "Log in with Google",
+                                  style: const TextStyle(
+                                    color: Colors.grey,
                                   ),
                                 ),
                               ],
                             ),
-                          ],
-                        ),
+                          ),
+                          const Expanded(child: Divider()),
+                        ],
                       ),
+                    ),
+
+                    const SizedBox(height: 25),
+
+                    // التبديل بين الحالتين
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          isSignupMode
+                              ? "Already have an account? "
+                              : "Don't have an account? ",
+                        ),
+                        GestureDetector(
+                          onTap:
+                              () => setState(
+                                () => isSignupMode = !isSignupMode,
+                          ),
+                          child: Text(
+                            isSignupMode ? "Log in" : "Sign up",
+                            style: const TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
@@ -313,11 +313,11 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Widget buildTextField(
-    String label,
-    String hint,
-    TextEditingController controller, {
-    bool isPassword = false,
-  }) {
+      String label,
+      String hint,
+      TextEditingController controller, {
+        bool isPassword = false,
+      }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -343,15 +343,15 @@ class _AuthScreenState extends State<AuthScreen> {
               borderSide: const BorderSide(color: Colors.black12),
             ),
             suffixIcon:
-                isPassword
-                    ? IconButton(
-                      icon: Icon(
-                        _isObscure ? Icons.visibility_off : Icons.visibility,
-                        color: primaryGreen,
-                      ),
-                      onPressed: () => setState(() => _isObscure = !_isObscure),
-                    )
-                    : null,
+            isPassword
+                ? IconButton(
+              icon: Icon(
+                _isObscure ? Icons.visibility_off : Icons.visibility,
+                color: primaryGreen,
+              ),
+              onPressed: () => setState(() => _isObscure = !_isObscure),
+            )
+                : null,
           ),
         ),
       ],
