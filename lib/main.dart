@@ -2,9 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:seiyun_reports_app/screens/Auth.dart';
+import 'package:seiyun_reports_app/screens/Home_Screen.dart';
+import 'package:seiyun_reports_app/not.dart';
+import 'package:seiyun_reports_app/screens/Welcome_Screen.dart';
 import 'package:seiyun_reports_app/screens/Home.dart';
 import 'package:seiyun_reports_app/screens/Report.dart';
 import 'firebase_options.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,7 +59,7 @@ class MyApp extends StatelessWidget {
           }
           // إذا وجد بيانات مستخدم (مسجل دخول)
           if (snapshot.hasData) {
-            return const HomeScreen();
+            return  AuthScreen();
           }
           // إذا لم يجد مستخدم (غير مسجل)
           return const AuthScreen();

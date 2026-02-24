@@ -1,12 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:seiyun_reports_app/screens/Home_Screen.dart';
+import 'package:seiyun_reports_app/repositories/auth_repository.dart';
+import 'package:seiyun_reports_app/data/models/user_model.dart'; 
 import 'package:seiyun_reports_app/screens/Home.dart';
 
 // تعريف الألوان
 const primaryGreen = Color(0xFF2E7D32);
 const primaryBrown = Color(0xFF5D4037);
-const darkRed = Color(0xCD8B0000); // أحمر داكن جداً للخطأ
+const darkRed = Color(0xCD8B0000);
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -20,12 +23,13 @@ class _AuthScreenState extends State<AuthScreen> {
   bool isSignupMode = true;
   bool isLoading = false;
 
+  
   // المتحكمات
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
-
-  // دالة إظهار رسالة الخطأ (SnackBar)
+  
+   // دالة إظهار رسالة الخطأ (SnackBar)
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -33,15 +37,14 @@ class _AuthScreenState extends State<AuthScreen> {
           message,
           style: const TextStyle(
             color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+             fontWeight: FontWeight.bold
+              ),
+             ),
         backgroundColor: darkRed,
       ),
     );
   }
-
-  // دالة الانتقال للرئيسية
+      // دالة الانتقال للرئيسية
   void _goToHome() {
     Navigator.pushReplacement(
       context,
@@ -51,8 +54,10 @@ class _AuthScreenState extends State<AuthScreen> {
 
   // 1. التعامل مع الإيميل (تسجيل ودخول)
   Future<void> _handleEmailAuth() async {
+
     if (_emailController.text.trim().isEmpty ||
-        _passwordController.text.trim().isEmpty) {
+     _passwordController.text.trim().isEmpty) 
+     {
       _showErrorSnackBar("Please enter your email and password");
       return;
     }
@@ -62,6 +67,7 @@ class _AuthScreenState extends State<AuthScreen> {
     }
 
     setState(() => isLoading = true);
+
     try {
       if (isSignupMode) {
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -70,8 +76,7 @@ class _AuthScreenState extends State<AuthScreen> {
         );
         if (_nameController.text.isNotEmpty) {
           await FirebaseAuth.instance.currentUser?.updateDisplayName(
-            _nameController.text,
-          );
+            _nameController.text.trim());
         }
       } else {
         await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -79,10 +84,34 @@ class _AuthScreenState extends State<AuthScreen> {
           password: _passwordController.text.trim(),
         );
       }
-      _goToHome();
-    } on FirebaseAuthException catch (e) {
+
+      //  الربط مع Laravel
+      User? user = FirebaseAuth.instance.currentUser;// معرفة من المستخدم من الفايربيس
+      if (user != null) {
+        print("ID_TOKEN_FOR_POSTMAN: ${await user?.getIdToken()}");//طلب الايدي توكن من الفايربيس حق المستخدم 
+        //انشاء كائن من الملف الي سويته 
+        final authRepo = AuthRepository();
+        
+        // ارسال البياناتت للارفل من خلال الدالة الموجودة بالملف 
+        await authRepo.registerUser(
+          role: 'citizens', 
+          name: _nameController.text.isEmpty ? 
+          (user.displayName ?? "User") : _nameController.text.trim(),
+        );
+
+        print("✅ Sync with Laravel Successful");
+
+        _goToHome();
+      }
+
+    } 
+    on FirebaseAuthException catch (e) {
       _showErrorSnackBar(e.message ?? "An unexpected error occurred");
-    } finally {
+    }
+     catch (e) {
+      _showErrorSnackBar("Sync Failed: ${e.toString()}");
+    } 
+    finally {
       setState(() => isLoading = false);
     }
   }
@@ -104,16 +133,29 @@ class _AuthScreenState extends State<AuthScreen> {
         idToken: googleAuth.idToken,
       );
 
-      await FirebaseAuth.instance.signInWithCredential(credential);
-      _goToHome();
+      // دخول الفايربيس
+      UserCredential userCred = await FirebaseAuth.instance.signInWithCredential(credential);
+      
+      // مزامنة جوجل مع لارفل نفس الخطوات السابقة
+      if (userCred.user != null) {
+        final authRepo = AuthRepository();
+        // نتحقق من الاسم، إذا كان فارغاً أو نل، نأخذ الإيميل، وإذا لا هذا ولا ذاك نضع "User"
+        String finalName = userCred.user!.displayName ?? 
+                   (userCred.user!.email != null ? userCred.user!.email!.split('@')[0] : "User");
+        await authRepo.registerUser(
+          role: 'citizens',
+          name: finalName,
+        );
+        _goToHome();
+      }
     } catch (e) {
-      _showErrorSnackBar("Google Sign-In failed");
+      _showErrorSnackBar("Google Sign-In failed: ");
     } finally {
       setState(() => isLoading = false);
     }
   }
 
-  @override
+   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
 
