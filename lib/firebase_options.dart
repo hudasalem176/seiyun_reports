@@ -70,6 +70,9 @@ class DefaultFirebaseOptions {
     messagingSenderId: '496638177733',
     projectId: 'reports-app-dc046',
     storageBucket: 'reports-app-dc046.firebasestorage.app',
+    androidClientId: '496638177733-scbh9flojs2mkdf41pbhijlliuokhhio.apps.googleusercontent.com',
+    iosClientId: '496638177733-ulnmfvkfkdej7magdu86ovqsdctdap6q.apps.googleusercontent.com',
     iosBundleId: 'com.example.seiyunReportsApp',
   );
+
 }

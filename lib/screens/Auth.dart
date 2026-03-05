@@ -1,12 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:seiyun_reports_app/screens/Home_Screen.dart';
 import 'package:seiyun_reports_app/repositories/auth_repository.dart';
-import 'package:seiyun_reports_app/data/models/user_model.dart'; 
 import 'package:seiyun_reports_app/screens/Home.dart';
 
-// تعريف الألوان
+/// ===============================
+/// تعريف ألوان التطبيق
+/// ===============================
 const primaryGreen = Color(0xFF2E7D32);
 const primaryBrown = Color(0xFF5D4037);
 const darkRed = Color(0xCD8B0000);
@@ -19,150 +19,248 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
+
+  /// التحكم في إظهار كلمة المرور
   bool _isObscure = true;
+
+  /// تحديد وضع الشاشة (تسجيل / دخول)
   bool isSignupMode = true;
+
+  /// حالة التحميل
   bool isLoading = false;
 
-  
-  // المتحكمات
+  /// Controllers للحقول النصية
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
-  
-   // دالة إظهار رسالة الخطأ (SnackBar)
+
+  /// كائن Google Sign In
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+
+  /// كائن FirebaseAuth لتقليل تكرار الاستدعاء
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  /// ===============================
+  /// تهيئة Google Sign In عند تشغيل الصفحة
+  /// ===============================
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  /// ===============================
+  /// التخلص من Controllers لتجنب تسريب الذاكرة
+  /// ===============================
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  /// ===============================
+  /// إظهار رسالة خطأ للمستخدم
+  /// ===============================
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
+        backgroundColor: darkRed,
         content: Text(
           message,
           style: const TextStyle(
             color: Colors.white,
-             fontWeight: FontWeight.bold
-              ),
-             ),
-        backgroundColor: darkRed,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
     );
   }
-      // دالة الانتقال للرئيسية
+
+  /// ===============================
+  /// الانتقال إلى الصفحة الرئيسية
+  /// ===============================
   void _goToHome() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
     );
   }
 
-  // 1. التعامل مع الإيميل (تسجيل ودخول)
-  Future<void> _handleEmailAuth() async {
-
+  /// ===============================
+  /// التحقق من صحة المدخلات
+  /// ===============================
+  bool _validateInputs() {
     if (_emailController.text.trim().isEmpty ||
-     _passwordController.text.trim().isEmpty) 
-     {
-      _showErrorSnackBar("Please enter your email and password");
-      return;
+        _passwordController.text.trim().isEmpty) {
+      _showErrorSnackBar("يرجى إدخال البريد الإلكتروني وكلمة المرور");
+      return false;
     }
-    if (_nameController.text.trim().isEmpty && isSignupMode) {
-      _showErrorSnackBar("Please enter your full name");
-      return;
+
+    if (isSignupMode && _nameController.text.trim().isEmpty) {
+      _showErrorSnackBar("يرجى إدخال الاسم الكامل");
+      return false;
     }
+
+    return true;
+  }
+
+  /// ===============================
+  /// تسجيل الدخول أو إنشاء حساب بالإيميل
+  /// ===============================
+  Future<void> _handleEmailAuth() async {
+    if (!_validateInputs()) return;
 
     setState(() => isLoading = true);
 
     try {
+
+      /// إنشاء حساب جديد
       if (isSignupMode) {
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+
+        await _auth.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
+
         if (_nameController.text.isNotEmpty) {
-          await FirebaseAuth.instance.currentUser?.updateDisplayName(
-            _nameController.text.trim());
+          await _auth.currentUser?.updateDisplayName(
+            _nameController.text.trim(),
+          );
         }
-      } else {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
+
+      }
+      /// تسجيل دخول
+      else {
+
+        await _auth.signInWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
+
       }
 
-      //  الربط مع Laravel
-      User? user = FirebaseAuth.instance.currentUser;// معرفة من المستخدم من الفايربيس
+      /// المستخدم الحالي
+      final user = _auth.currentUser;
+
       if (user != null) {
-        print("ID_TOKEN_FOR_POSTMAN: ${await user?.getIdToken()}");//طلب الايدي توكن من الفايربيس حق المستخدم 
-        //انشاء كائن من الملف الي سويته 
+
+        /// طباعة التوكن (للاختبار مع Laravel)
+        final token = await user.getIdToken();
+        debugPrint("FIREBASE_TOKEN: $token");
+
+        /// مزامنة المستخدم مع Laravel
         final authRepo = AuthRepository();
-        
-        // ارسال البياناتت للارفل من خلال الدالة الموجودة بالملف 
+
         await authRepo.registerUser(
-          role: 'citizens', 
-          name: _nameController.text.isEmpty ? 
-          (user.displayName ?? "User") : _nameController.text.trim(),
+          role: 'citizens',
+          name: _nameController.text.isEmpty
+              ? (user.displayName ?? "User")
+              : _nameController.text.trim(),
         );
 
-        print("✅ Sync with Laravel Successful");
+        if (!mounted) return;
 
         _goToHome();
       }
 
-    } 
-    on FirebaseAuthException catch (e) {
-      _showErrorSnackBar(e.message ?? "An unexpected error occurred");
-    }
-     catch (e) {
-      _showErrorSnackBar("Sync Failed: ${e.toString()}");
-    } 
-    finally {
-      setState(() => isLoading = false);
+    } on FirebaseAuthException catch (e) {
+
+      _showErrorSnackBar(e.message ?? "حدث خطأ غير متوقع");
+
+    } catch (e) {
+
+      _showErrorSnackBar("فشل الربط مع الخادم");
+
+    } finally {
+
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+
     }
   }
 
-  // 2. التعامل مع جوجل
+  /// ===============================
+  /// تسجيل الدخول باستخدام Google
+  /// ===============================
   Future<void> _handleGoogleSignIn() async {
+
     setState(() => isLoading = true);
+
     try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+      /// فتح نافذة اختيار حساب جوجل
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
       if (googleUser == null) {
         setState(() => isLoading = false);
         return;
       }
 
+      /// الحصول على بيانات التوثيق
       final GoogleSignInAuthentication googleAuth =
       await googleUser.authentication;
-      final OAuthCredential credential = GoogleAuthProvider.credential(
+
+      /// إنشاء Credential للفirebase
+      final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      // دخول الفايربيس
-      UserCredential userCred = await FirebaseAuth.instance.signInWithCredential(credential);
-      
-      // مزامنة جوجل مع لارفل نفس الخطوات السابقة
-      if (userCred.user != null) {
+      /// تسجيل الدخول في Firebase
+      final userCredential =
+      await _auth.signInWithCredential(credential);
+
+      final user = userCredential.user;
+
+      if (user != null) {
+
         final authRepo = AuthRepository();
-        // نتحقق من الاسم، إذا كان فارغاً أو نل، نأخذ الإيميل، وإذا لا هذا ولا ذاك نضع "User"
-        String finalName = userCred.user!.displayName ?? 
-                   (userCred.user!.email != null ? userCred.user!.email!.split('@')[0] : "User");
+
+        /// استخراج الاسم
+        final finalName = user.displayName ??
+            (user.email != null
+                ? user.email!.split('@')[0]
+                : "User");
+
+        /// إرسال البيانات إلى Laravel
         await authRepo.registerUser(
           role: 'citizens',
           name: finalName,
         );
+
+        if (!mounted) return;
+
         _goToHome();
       }
+
     } catch (e) {
-      _showErrorSnackBar("Google Sign-In failed: ");
+
+      _showErrorSnackBar("فشل تسجيل الدخول بواسطة Google");
+
     } finally {
-      setState(() => isLoading = false);
+
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+
     }
   }
 
-   @override
+  /// ===============================
+  /// بناء واجهة الشاشة
+  /// ===============================
+  @override
   Widget build(BuildContext context) {
+
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       body: Stack(
         children: [
-          // الخلفية
+
+          /// خلفية الشاشة
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -173,180 +271,52 @@ class _AuthScreenState extends State<AuthScreen> {
             ),
           ),
 
-          // زر العودة (يظهر فقط في وضع التسجيل )
-          isSignupMode
-              ? Container()
-              : Positioned(
-            top: 50,
-            left: 20,
-            child: TextButton.icon(
-              onPressed: () {
-                setState(() {
-                  isSignupMode = true;
-                });
-              },
-              icon: const Icon(
-                Icons.arrow_back_ios,
-                color: Colors.white,
-                size: 18,
-              ),
-              label: const Text(
-                "Back",
-                style: TextStyle(color: Colors.white, fontSize: 16),
+          /// زر الرجوع في حالة تسجيل الدخول
+          if (!isSignupMode)
+            Positioned(
+              top: 50,
+              left: 20,
+              child: TextButton.icon(
+                onPressed: () {
+                  setState(() {
+                    isSignupMode = true;
+                  });
+                },
+                icon: const Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.white,
+                  size: 18,
+                ),
+                label: const Text(
+                  "Back",
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ),
-          ),
 
+          /// واجهة الإدخال
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
               height: screenHeight * 0.8,
               padding: const EdgeInsets.symmetric(
-                horizontal: 25.0,
-                vertical: 30.0,
+                horizontal: 25,
+                vertical: 30,
               ),
               decoration: const BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(40),
-                  topRight: Radius.circular(40),
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(40),
                 ),
               ),
-              child:
-              isLoading
+
+              child: isLoading
                   ? const Center(
-                child: CircularProgressIndicator(color: primaryGreen),
-              )
-                  : SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const Icon(
-                      Icons.forest_rounded,
-                      color: primaryGreen,
-                      size: 40,
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      isSignupMode ? 'Get Started' : 'Welcome Back',
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: primaryGreen,
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-
-                    if (isSignupMode) ...[
-                      buildTextField(
-                        "Full Name",
-                        "Enter Full Name",
-                        _nameController,
-                      ),
-                      const SizedBox(height: 20),
-                    ],
-
-                    buildTextField(
-                      "Email",
-                      "Enter Email",
-                      _emailController,
-                    ),
-                    const SizedBox(height: 20),
-                    buildTextField(
-                      "Password",
-                      "Enter Password",
-                      _passwordController,
-                      isPassword: true,
-                    ),
-
-                    const SizedBox(height: 30),
-
-                    // زر الدخول/التسجيل
-                    SizedBox(
-                      width: double.infinity,
-                      height: 55,
-                      child: ElevatedButton(
-                        onPressed: _handleEmailAuth,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryBrown,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                        ),
-                        child: Text(
-                          isSignupMode ? 'Sign up' : 'Log in',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 25),
-
-                    // جوجل
-                    InkWell(
-                      onTap: _handleGoogleSignIn,
-                      child: Row(
-                        children: [
-                          const Expanded(child: Divider()),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                            ),
-                            child: Row(
-                              children: [
-                                Image.asset(
-                                  'assets/google.png',
-                                  width: 20,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  isSignupMode
-                                      ? "Sign up with Google"
-                                      : "Log in with Google",
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Expanded(child: Divider()),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 25),
-
-                    // التبديل بين الحالتين
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          isSignupMode
-                              ? "Already have an account? "
-                              : "Don't have an account? ",
-                        ),
-                        GestureDetector(
-                          onTap:
-                              () => setState(
-                                () => isSignupMode = !isSignupMode,
-                          ),
-                          child: Text(
-                            isSignupMode ? "Log in" : "Sign up",
-                            style: const TextStyle(
-                              color: Colors.blue,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                child: CircularProgressIndicator(
+                  color: primaryGreen,
                 ),
-              ),
+              )
+                  : _buildAuthForm(),
             ),
           ),
         ],
@@ -354,15 +324,155 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
-  Widget buildTextField(
+  /// ===============================
+  /// بناء نموذج تسجيل الدخول
+  /// ===============================
+  Widget _buildAuthForm() {
+
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+
+          const Icon(
+            Icons.forest_rounded,
+            color: primaryGreen,
+            size: 40,
+          ),
+
+          const SizedBox(height: 10),
+
+          Text(
+            isSignupMode ? 'Get Started' : 'Welcome Back',
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: primaryGreen,
+            ),
+          ),
+
+          const SizedBox(height: 30),
+
+          if (isSignupMode) ...[
+            _buildTextField(
+              "Full Name",
+              "Enter Full Name",
+              _nameController,
+            ),
+            const SizedBox(height: 20),
+          ],
+
+          _buildTextField("Email", "Enter Email", _emailController),
+
+          const SizedBox(height: 20),
+
+          _buildTextField(
+            "Password",
+            "Enter Password",
+            _passwordController,
+            isPassword: true,
+          ),
+
+          const SizedBox(height: 30),
+
+          /// زر تسجيل الدخول
+          SizedBox(
+            width: double.infinity,
+            height: 55,
+            child: ElevatedButton(
+              onPressed: _handleEmailAuth,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryBrown,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+              ),
+              child: Text(
+                isSignupMode ? 'Sign up' : 'Log in',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 25),
+
+          /// تسجيل الدخول بجوجل
+          InkWell(
+            onTap: _handleGoogleSignIn,
+            child: Row(
+              children: [
+                const Expanded(child: Divider()),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        'assets/google.png',
+                        width: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        isSignupMode
+                            ? "Sign up with Google"
+                            : "Log in with Google",
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+                const Expanded(child: Divider()),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 25),
+
+          /// تبديل بين تسجيل الدخول والتسجيل
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                isSignupMode
+                    ? "Already have an account? "
+                    : "Don't have an account? ",
+              ),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    isSignupMode = !isSignupMode;
+                  });
+                },
+                child: Text(
+                  isSignupMode ? "Log in" : "Sign up",
+                  style: const TextStyle(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// ===============================
+  /// حقل إدخال نصي
+  /// ===============================
+  Widget _buildTextField(
       String label,
       String hint,
       TextEditingController controller, {
         bool isPassword = false,
       }) {
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+
         Text(
           label,
           style: const TextStyle(
@@ -370,7 +480,9 @@ class _AuthScreenState extends State<AuthScreen> {
             color: primaryBrown,
           ),
         ),
+
         const SizedBox(height: 8),
+
         TextField(
           controller: controller,
           obscureText: isPassword ? _isObscure : false,
@@ -378,20 +490,30 @@ class _AuthScreenState extends State<AuthScreen> {
             hintText: hint,
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
-              borderSide: const BorderSide(color: primaryGreen, width: 2),
+              borderSide: const BorderSide(
+                color: primaryGreen,
+                width: 2,
+              ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
-              borderSide: const BorderSide(color: Colors.black12),
+              borderSide: const BorderSide(
+                color: Colors.black12,
+              ),
             ),
-            suffixIcon:
-            isPassword
+            suffixIcon: isPassword
                 ? IconButton(
               icon: Icon(
-                _isObscure ? Icons.visibility_off : Icons.visibility,
+                _isObscure
+                    ? Icons.visibility_off
+                    : Icons.visibility,
                 color: primaryGreen,
               ),
-              onPressed: () => setState(() => _isObscure = !_isObscure),
+              onPressed: () {
+                setState(() {
+                  _isObscure = !_isObscure;
+                });
+              },
             )
                 : null,
           ),
