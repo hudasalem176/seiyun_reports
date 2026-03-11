@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:seiyun_reports_app/screens/news_tips/view/news_tips_screen.dart';
-import 'package:seiyun_reports_app/screens/report/view/report_screen.dart'
-    hide sectionTitleStyle;
+
+import 'package:seiyun_reports_app/screens/citizen_reports/view/citizen_reports_page.dart';
 
 import 'package:seiyun_reports_app/screens/home/view/home_screen.dart'; // For sectionTitleStyle
 
@@ -30,7 +30,7 @@ class SectionHeader extends StatelessWidget {
             if (title == 'البلاغات الأخيرة') {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ReportScreen()),
+                MaterialPageRoute(builder: (context) => const CitizenReportsPage()),
               );
             } else {
               Navigator.push(

@@ -48,9 +48,9 @@ class ReportHeader extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
+              color: Colors.white.withOpacity(0.15),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
             ),
             child: const Text(
               "ساعد في تحسين مدينتك من خلال الإبلاغ عن المشكلات، سنعمل على حلها في أقرب وقت.",

@@ -43,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
     
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      extendBody: true,
       body: _pages[homeVM.currentIndex],
       floatingActionButton: FloatingActionButton(
         onPressed: () {

@@ -55,68 +55,65 @@ class CategoryGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final reportVM = context.watch<ReportViewModel>();
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: 15,
-        mainAxisSpacing: 15,
-        childAspectRatio: 0.85,
-      ),
-      itemCount: categories.length,
-      itemBuilder: (context, index) {
-        final cat = categories[index];
+    return Wrap(
+      spacing: 15,
+      runSpacing: 15,
+      children: categories.map((cat) {
         bool isSelected = reportVM.selectedCategory == cat['id'];
-        return GestureDetector(
-          onTap: () => reportVM.setCategory(cat['id']),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(
-                color: isSelected ? AppTheme.accentGreen : Theme.of(context).dividerColor.withOpacity(0.1),
-                width: isSelected ? 2.5 : 1,
+        return SizedBox(
+          width: (MediaQuery.of(context).size.width - 50 - 30) / 3, // الحساب لضمان عرض 3 عناصر في الصف
+          child: GestureDetector(
+            onTap: () => reportVM.setCategory(cat['id']),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.symmetric(vertical: 15),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(
+                  color: isSelected ? AppTheme.accentGreen : Theme.of(context).dividerColor.withOpacity(0.1),
+                  width: isSelected ? 2.5 : 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 45,
-                  height: 45,
-                  decoration: BoxDecoration(
-                    color: (cat['bg'] as Color).withOpacity(Theme.of(context).brightness == Brightness.dark ? 0.2 : 1.0),
-                    borderRadius: BorderRadius.circular(16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 45,
+                    height: 45,
+                    decoration: BoxDecoration(
+                      color: (cat['bg'] as Color).withOpacity(Theme.of(context).brightness == Brightness.dark ? 0.2 : 1.0),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Icon(
+                      cat['icon'] as IconData,
+                      color: cat['color'] as Color,
+                      size: 24,
+                    ),
                   ),
-                  child: Icon(
-                    cat['icon'] as IconData,
-                    color: cat['color'] as Color,
-                    size: 24,
+                  const SizedBox(height: 10),
+                  Text(
+                    cat['label'] as String,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).textTheme.titleSmall?.color,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  cat['label'] as String,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).textTheme.titleSmall?.color,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
-      },
+      }).toList(),
     );
   }
 }

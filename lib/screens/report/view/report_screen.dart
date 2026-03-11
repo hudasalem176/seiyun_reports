@@ -93,7 +93,7 @@ class _ReportScreenState extends State<ReportScreen> {
                     const PointsInfo(),
                     const SizedBox(height: 35),
                     _buildSubmitButton(context),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 100),
                   ],
                 ),
               ),

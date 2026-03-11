@@ -11,6 +11,9 @@ import 'package:seiyun_reports_app/viewmodels/notification_viewmodel.dart';
 import 'package:seiyun_reports_app/screens/my_reports/viewmodel/my_reports_viewmodel.dart';
 import 'package:seiyun_reports_app/screens/news_tips/viewmodel/news_tips_viewmodel.dart';
 import 'package:seiyun_reports_app/screens/profile/viewmodel/profile_viewmodel.dart';
+import 'package:seiyun_reports_app/screens/citizen_reports/viewmodel/citizen_reports_viewmodel.dart';
+import 'package:seiyun_reports_app/screens/pickup_schedules/viewmodel/pickup_schedules_viewmodel.dart';
+import 'package:seiyun_reports_app/screens/map/viewmodel/map_viewmodel.dart';
 import 'package:seiyun_reports_app/core/theme/app_theme.dart';
 import 'firebase_options.dart';
 
@@ -28,6 +31,9 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => MyReportsViewModel()),
         ChangeNotifierProvider(create: (_) => NewsTipsViewModel()),
         ChangeNotifierProvider(create: (_) => ProfileViewModel()),
+        ChangeNotifierProvider(create: (_) => CitizenReportsViewModel()),
+        ChangeNotifierProvider(create: (_) => PickupSchedulesViewModel()),
+        ChangeNotifierProvider(create: (_) => MapViewModel()),
       ],
       child: const MyApp(),
     ),
