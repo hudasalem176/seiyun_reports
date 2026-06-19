@@ -22,7 +22,7 @@ class MapInfoBottomSheet extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -38,7 +38,7 @@ class MapInfoBottomSheet extends StatelessWidget {
               height: 4,
               margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.3),
+                color: Colors.grey.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -58,20 +58,15 @@ class MapInfoBottomSheet extends StatelessWidget {
             ),
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           Text(
             snippet,
             style: TextStyle(
-              color: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.color
-                  ?.withOpacity(0.7),
+              color: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
               height: 1.5,
             ),
           ),
@@ -107,11 +102,12 @@ class MapInfoBottomSheet extends StatelessWidget {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => MapInfoBottomSheet(
-        title: title,
-        snippet: snippet,
-        imageUrl: imageUrl,
-      ),
+      builder:
+          (context) => MapInfoBottomSheet(
+            title: title,
+            snippet: snippet,
+            imageUrl: imageUrl,
+          ),
     );
   }
 }

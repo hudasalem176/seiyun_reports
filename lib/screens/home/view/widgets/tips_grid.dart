@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:seiyun_reports_app/screens/news_tips/view/news_tips_screen.dart';
 
 class TipsGrid extends StatelessWidget {
   const TipsGrid({super.key});
@@ -16,30 +17,35 @@ class TipsGrid extends StatelessWidget {
 
   Widget _tipCard(String title, IconData icon, BuildContext context) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(
-            color: Colors.orange.withOpacity(0.2),
-            width: 1,
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NewsTipsScreen()),
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(color: Colors.orange.withOpacity(0.2), width: 1),
           ),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: Colors.orange, size: 28),
-            const SizedBox(height: 10),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).textTheme.bodyLarge?.color,
+          child: Column(
+            children: [
+              Icon(icon, color: Colors.orange, size: 28),
+              const SizedBox(height: 10),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

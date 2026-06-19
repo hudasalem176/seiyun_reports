@@ -10,7 +10,8 @@ class SupervisorTasksViewModel extends ChangeNotifier {
   Timer? _autoRefreshTimer;
 
   SupervisorTasksViewModel(this._repository) {
-    fetchAssignments();
+    // Use Future.microtask to avoid notifyListeners() during widget build
+    Future.microtask(() => fetchAssignments());
     _startAutoRefresh();
   }
 
@@ -32,6 +33,8 @@ class SupervisorTasksViewModel extends ChangeNotifier {
   Future<void> fetchAssignments({bool showLoading = true}) async {
     if (showLoading) {
       _isLoading = true;
+      // Defer notifyListeners to avoid 'setState() during build' error
+      await Future.delayed(Duration.zero);
       notifyListeners();
     }
 
@@ -64,7 +67,7 @@ class SupervisorTasksViewModel extends ChangeNotifier {
         imagePath: imagePath,
       );
       if (success) {
-        await fetchAssignments(); 
+        await fetchAssignments();
       }
       return success;
     } catch (e) {
@@ -91,21 +94,25 @@ class SupervisorTasksViewModel extends ChangeNotifier {
         image: imagePath,
       );
 
-      final confirmationData = await _repository.confirmAssignment(confirmation);
-      
+      final confirmationData = await _repository.confirmAssignment(
+        confirmation,
+      );
+
       if (confirmationData != null) {
-        final index = _assignments.indexWhere((a) => a.idAssignments == assignmentId);
+        final index = _assignments.indexWhere(
+          (a) => a.idAssignments == assignmentId,
+        );
         if (index != -1) {
           _assignments[index] = _assignments[index].copyWith(
-            status: 'completed', 
+            status: 'completed',
             confirmationNote: confirmationData['note'],
             confirmationImage: confirmationData['image'],
           );
-          
-          final localService = AssignmentsLocalService(); 
+
+          final localService = AssignmentsLocalService();
           await localService.saveAssignments(_assignments);
         }
-        
+
         notifyListeners();
         return true;
       }
@@ -118,21 +125,27 @@ class SupervisorTasksViewModel extends ChangeNotifier {
     }
   }
 
-  List<AssignmentModel> get pendingTasks => 
-      _assignments.where((t) => 
-        t.status == 'قيد الانتظار' || 
-        t.status == 'pending' || 
-        t.status == 'قيد المعالجة' || 
-        t.status == 'processing'
-      ).toList();
+  List<AssignmentModel> get pendingTasks =>
+      _assignments
+          .where(
+            (t) =>
+                t.status == 'قيد الانتظار' ||
+                t.status == 'pending' ||
+                t.status == 'قيد المعالجة' ||
+                t.status == 'processing',
+          )
+          .toList();
 
-  List<AssignmentModel> get completedTasks => 
-      _assignments.where((t) => 
-        t.status == 'تم الحل' || 
-        t.status == 'solved' || 
-        t.status == 'مكتملة' ||
-        t.status == 'completed'
-      ).toList();
+  List<AssignmentModel> get completedTasks =>
+      _assignments
+          .where(
+            (t) =>
+                t.status == 'تم الحل' ||
+                t.status == 'solved' ||
+                t.status == 'مكتملة' ||
+                t.status == 'completed',
+          )
+          .toList();
   @override
   void dispose() {
     _autoRefreshTimer?.cancel();

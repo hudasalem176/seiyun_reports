@@ -24,10 +24,17 @@ class LogoutButton extends StatelessWidget {
           child: const Icon(Icons.logout, color: Colors.red),
         ),
         title: Text(
-         "profile.logout".tr(),
+          "profile.logout".tr(),
           style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
         ),
-        onTap: () => viewModel.logout(),
+        onTap: () async {
+          await viewModel.logout();
+          if (context.mounted) {
+            Navigator.of(
+              context,
+            ).pushNamedAndRemoveUntil('/', (route) => false);
+          }
+        },
       ),
     );
   }

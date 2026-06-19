@@ -2,14 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:seiyun_reports_app/screens/auth/data/auth_repository.dart';
-import 'package:seiyun_reports_app/core/utils/pref_helper.dart';
 
 /// كلاس إدارة حالة المصادقة (تسجيل الدخول، إنشاء حساب، تسجيل جوجل)
 class AuthViewModel extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  bool _isSignupMode = true; 
+  bool _isSignupMode = true;
   bool get isSignupMode => _isSignupMode;
 
   final GoogleSignIn _googleSignIn = GoogleSignIn();
@@ -72,9 +71,12 @@ class AuthViewModel extends ChangeNotifier {
 
         await _authRepo.registerUser(
           role: role,
-          name: _isSignupMode 
-              ? ((name != null && name.trim().isNotEmpty) ? name.trim() : (user.displayName ?? "User"))
-              : null,
+          name:
+              _isSignupMode
+                  ? ((name != null && name.trim().isNotEmpty)
+                      ? name.trim()
+                      : (user.displayName ?? "User"))
+                  : null,
           token: token,
           email: user.email,
         );
@@ -85,9 +87,10 @@ class AuthViewModel extends ChangeNotifier {
     } on FirebaseAuthException catch (e) {
       _errorMessage = e.message ?? "حدث خطأ في المصادقة";
     } catch (e) {
-      _errorMessage = e.toString().contains("Exception:") 
-          ? e.toString().replaceAll("Exception: ", "") 
-          : "فشل الربط مع الخادم: $e";
+      _errorMessage =
+          e.toString().contains("Exception:")
+              ? e.toString().replaceAll("Exception: ", "")
+              : "فشل الربط مع الخادم: $e";
     }
 
     _isLoading = false;
@@ -102,15 +105,15 @@ class AuthViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _googleSignIn.signOut(); 
+      await _googleSignIn.signOut();
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
       if (googleUser == null) {
-        _isLoading = false;
-        notifyListeners();
         return false;
       }
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
@@ -120,29 +123,28 @@ class AuthViewModel extends ChangeNotifier {
       final user = userCredential.user;
 
       if (user != null) {
-        final finalName = user.displayName ??
+        final finalName =
+            user.displayName ??
             (user.email != null ? user.email!.split('@')[0] : "User");
 
         final token = await user.getIdToken();
         const String role = 'citizens';
 
         await _authRepo.registerUser(
-          role: role, 
+          role: role,
           name: finalName != "User" ? finalName : null,
           token: token,
           email: user.email,
         );
-        _isLoading = false;
-        notifyListeners();
         return true;
       }
+      return false;
     } catch (e) {
-      _errorMessage = "فشل تسجيل الدخول بواسطة Google";
+      _errorMessage = "فشل تسجيل الدخول بواسطة Google: ${e.toString()}";
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-
-    _isLoading = false;
-    notifyListeners();
-    return false;
   }
 }
-

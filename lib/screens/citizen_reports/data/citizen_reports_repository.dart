@@ -17,34 +17,40 @@ class CitizenReportsRepository {
     if (await _networkInfo.isConnected) {
       try {
         final response = await _service.getAllCitizenReports();
-        if (response.data['status'] == 'success' || response.statusCode == 201 || response.statusCode == 200) {
+        if (response.data['status'] == 'success' ||
+            response.statusCode == 201 ||
+            response.statusCode == 200) {
           final List list = response.data['data'];
 
-          List<CitizenReportModel> remoteReports = list.map((json) {
-            return CitizenReportModel.fromJson(json);
-          }).toList();
+          List<CitizenReportModel> remoteReports =
+              list.map((json) {
+                return CitizenReportModel.fromJson(json);
+              }).toList();
 
           final localReports = await _localService.getLocalCitizenReports();
           final localDataMap = {for (var r in localReports) r.id: r};
 
-          remoteReports = remoteReports.map((remoteReport) {
-            final localReport = localDataMap[remoteReport.id];
-            if (localReport != null) {
-              return remoteReport.copyWith(
-                isLiked: localReport.isLiked,
-                likesCount: localReport.likesCount,
-                viewsCount: remoteReport.viewsCount > localReport.viewsCount
-                    ? remoteReport.viewsCount
-                    : localReport.viewsCount,
-              );
-            }
-            return remoteReport;
-          }).toList();
+          remoteReports =
+              remoteReports.map((remoteReport) {
+                final localReport = localDataMap[remoteReport.id];
+                if (localReport != null) {
+                  return remoteReport.copyWith(
+                    isLiked: localReport.isLiked,
+                    likesCount: localReport.likesCount,
+                    viewsCount:
+                        remoteReport.viewsCount > localReport.viewsCount
+                            ? remoteReport.viewsCount
+                            : localReport.viewsCount,
+                  );
+                }
+                return remoteReport;
+              }).toList();
 
           await _localService.saveCitizenReports(remoteReports);
           return remoteReports;
         }
       } catch (e) {
+        // فشل جلب البلاغات من السيرفر
       }
     }
 
@@ -53,16 +59,17 @@ class CitizenReportsRepository {
 
   /// جلب إحصائيات البلاغات من الخادم.
   Future<ReportStatistics?> getReportStats() async {
-  if (!await _networkInfo.isConnected) return null; 
-  try {
-    final response = await _service.getStatistics();
-    if (response.data['status'] == 'success') {
-      return ReportStatistics.fromJson(response.data['data']);
+    if (!await _networkInfo.isConnected) return null;
+    try {
+      final response = await _service.getStatistics();
+      if (response.data['status'] == 'success') {
+        return ReportStatistics.fromJson(response.data['data']);
+      }
+    } catch (e) {
+      // فشل الإحصائيات
     }
-  } catch (e) {
+    return null;
   }
-  return null;
-}
 
   /// إضافة تعليق جديد على بلاغ معين.
   Future<bool> addComment(int reportId, String commentText) async {
@@ -88,6 +95,7 @@ class CitizenReportsRepository {
         return list.map((json) => CommentModel.fromJson(json)).toList();
       }
     } catch (e) {
+      // تفشل التعليقات
     }
     return [];
   }
@@ -95,9 +103,16 @@ class CitizenReportsRepository {
   /// تبديل حالة الإعجاب لبلاغ معين محلياً وعبر الخادم.
   Future<void> toggleLike(CitizenReportModel report) async {
     final bool newIsLiked = !report.isLiked;
-    final int newLikesCount = newIsLiked ? report.likesCount + 1 : (report.likesCount - 1).clamp(0, 999999);
+    final int newLikesCount =
+        newIsLiked
+            ? report.likesCount + 1
+            : (report.likesCount - 1).clamp(0, 999999);
 
-    await _localService.updateCitizenReportLikeLocal(report.id, newIsLiked, newLikesCount);
+    await _localService.updateCitizenReportLikeLocal(
+      report.id,
+      newIsLiked,
+      newLikesCount,
+    );
 
     if (!await _networkInfo.isConnected) return;
     try {
@@ -107,7 +122,11 @@ class CitizenReportsRepository {
         await _service.incrementLike(report.id);
       }
     } catch (e) {
-      await _localService.updateCitizenReportLikeLocal(report.id, report.isLiked, report.likesCount);
+      await _localService.updateCitizenReportLikeLocal(
+        report.id,
+        report.isLiked,
+        report.likesCount,
+      );
       rethrow;
     }
   }
@@ -121,6 +140,7 @@ class CitizenReportsRepository {
         await _service.incrementView(reportId);
       }
     } catch (e) {
+      // فشل زيادة المشاهدات
     }
   }
 }

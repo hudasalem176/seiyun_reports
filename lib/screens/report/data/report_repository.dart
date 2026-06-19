@@ -1,6 +1,4 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:seiyun_reports_app/core/database/reports_local_service.dart';
 import 'package:seiyun_reports_app/core/network/network_info.dart';
@@ -67,6 +65,7 @@ class ReportRepository {
           return true;
         }
       } catch (e) {
+        // فشل الإرسال الفوري
       }
     }
     await _saveLocally(
@@ -115,11 +114,10 @@ class ReportRepository {
 
       if (shouldSync && hasInternet) {
         if (cachedReports.isEmpty || isRefresh) {
-          await _syncReportsWithServer(); 
-          cachedReports =
-              await _localService.getLocalReports(); 
+          await _syncReportsWithServer();
+          cachedReports = await _localService.getLocalReports();
         } else {
-          _syncReportsWithServer(); 
+          _syncReportsWithServer();
         }
       }
 
@@ -127,7 +125,7 @@ class ReportRepository {
 
       return allReports;
     } catch (e) {
-      return []; 
+      return [];
     }
   }
 
@@ -141,15 +139,15 @@ class ReportRepository {
         List<ReportModel> remoteReports =
             data.map((json) {
               final model = ReportModel.fromJson(json);
-              if (model.id == 0) {
-              }
+              if (model.id == 0) {}
               return model;
             }).toList();
 
         await _localService.saveReports(remoteReports);
-        await UpdateHelper.saveLastUpdate('my_reports_sync'); 
+        await UpdateHelper.saveLastUpdate('my_reports_sync');
       }
     } catch (e) {
+      // فشل المزامنة
     }
   }
 
@@ -159,7 +157,6 @@ class ReportRepository {
     List<Map<String, dynamic>> pending =
         await _localService.getPendingReports();
     if (pending.isEmpty) return;
-
 
     for (var data in pending) {
       bool success = await sendNewReport(

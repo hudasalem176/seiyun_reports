@@ -13,14 +13,13 @@ class LocationPickerScreen extends StatefulWidget {
 
 class _LocationPickerScreenState extends State<LocationPickerScreen> {
   late LatLng _selectedLocation;
-  GoogleMapController? _mapController;
   bool _isMapReady = false;
 
   @override
   void initState() {
     super.initState();
     _selectedLocation = widget.initialLocation;
-    _isMapReady = true; 
+    _isMapReady = true;
   }
 
   @override
@@ -58,33 +57,38 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
           children: [
             if (_isMapReady)
               GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: _selectedLocation.latitude == 0 ? MapViewModel.seiyunCenter : _selectedLocation,
-                zoom: 16.0,
-              ),
-              onMapCreated: (controller) => _mapController = controller,
-              onTap: (location) {
-                setState(() {
-                  _selectedLocation = location;
-                });
-              },
-              markers: {
-                Marker(
-                  markerId: const MarkerId('selected_location'),
-                  position: _selectedLocation,
-                  draggable: true,
-                  onDragEnd: (location) {
-                    setState(() {
-                      _selectedLocation = location;
-                    });
-                  },
+                initialCameraPosition: CameraPosition(
+                  target:
+                      _selectedLocation.latitude == 0
+                          ? MapViewModel.seiyunCenter
+                          : _selectedLocation,
+                  zoom: 16.0,
                 ),
-              },
-              myLocationEnabled: true,
-              myLocationButtonEnabled: true,
-            )
+                onMapCreated: (controller) {},
+                onTap: (location) {
+                  setState(() {
+                    _selectedLocation = location;
+                  });
+                },
+                markers: {
+                  Marker(
+                    markerId: const MarkerId('selected_location'),
+                    position: _selectedLocation,
+                    draggable: true,
+                    onDragEnd: (location) {
+                      setState(() {
+                        _selectedLocation = location;
+                      });
+                    },
+                  ),
+                },
+                myLocationEnabled: true,
+                myLocationButtonEnabled: true,
+              )
             else
-              const Center(child: CircularProgressIndicator(color: Colors.green)),
+              const Center(
+                child: CircularProgressIndicator(color: Colors.green),
+              ),
             Positioned(
               bottom: 40,
               left: 20,
@@ -96,7 +100,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   borderRadius: BorderRadius.circular(15),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 10,
                       offset: const Offset(0, 5),
                     ),

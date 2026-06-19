@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:seiyun_reports_app/screens/home/viewmodel/home_viewmodel.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:seiyun_reports_app/core/theme/app_theme.dart';
 import 'package:seiyun_reports_app/screens/notifications/viewmodel/notification_viewmodel.dart';
 import 'package:seiyun_reports_app/screens/notifications/view/notifications_screen.dart';
@@ -15,7 +14,6 @@ class HomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final homeVM = context.watch<HomeViewModel>();
     final notificationVM = context.watch<NotificationViewModel>();
-    final User? user = homeVM.currentUser;
     String name = homeVM.userName;
 
     return Container(
@@ -101,7 +99,7 @@ class HomeHeader extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 15),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(15),
             ),
             child: TextField(

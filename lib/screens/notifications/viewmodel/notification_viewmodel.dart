@@ -40,27 +40,30 @@ class NotificationViewModel extends ChangeNotifier {
       notifyListeners();
     });
 
-    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
-      if (user != null) {
-        await loadNotificationsForUser(user.uid);
-      } else {
-        _notifications.clear();
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      // Use Future.microtask to avoid notifyListeners() during widget build
+      Future.microtask(() async {
+        if (user != null) {
+          await loadNotificationsForUser(user.uid);
+        } else {
+          _notifications.clear();
+          notifyListeners();
+        }
+      });
+    });
+
+    _notificationSubscription = NotificationService.onNotificationSaved.listen((
+      notification,
+    ) {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null &&
+          (notification.userId.isEmpty ||
+              notification.userId == currentUser.uid)) {
+        _notifications.insert(0, notification);
+        _reportViewModel.fetchReportsFromLaravel(isRefresh: true);
         notifyListeners();
       }
     });
-
-    _notificationSubscription = NotificationService.onNotificationSaved.listen(
-      (notification) {
-        final currentUser = FirebaseAuth.instance.currentUser;
-        if (currentUser != null &&
-            (notification.userId.isEmpty ||
-                notification.userId == currentUser.uid)) {
-          _notifications.insert(0, notification);
-          _reportViewModel.fetchReportsFromLaravel(isRefresh: true);
-          notifyListeners();
-        }
-      },
-    );
   }
 
   @override

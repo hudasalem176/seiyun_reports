@@ -21,10 +21,30 @@ class CitizenReportsStats extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _StatCard(label: 'إجمالي', value: '$total', color: Colors.blue[50]!, textColor: Colors.blue),
-          _StatCard(label: 'محلولة', value: '$resolved', color: Colors.green[50]!, textColor: Colors.green),
-          _StatCard(label: 'نشطة', value: '$active', color: Colors.orange[50]!, textColor: Colors.orange),
-          _StatCard(label: 'معدل الحل', value: rate, color: Colors.pink[50]!, textColor: Colors.pink),
+          _StatCard(
+            label: 'إجمالي',
+            value: '$total',
+            color: Colors.blue[50]!,
+            textColor: Colors.blue,
+          ),
+          _StatCard(
+            label: 'محلولة',
+            value: '$resolved',
+            color: Colors.green[50]!,
+            textColor: Colors.green,
+          ),
+          _StatCard(
+            label: 'نشطة',
+            value: '$active',
+            color: Colors.orange[50]!,
+            textColor: Colors.orange,
+          ),
+          _StatCard(
+            label: 'معدل الحل',
+            value: rate,
+            color: Colors.pink[50]!,
+            textColor: Colors.pink,
+          ),
         ],
       ),
     );
@@ -53,18 +73,25 @@ class _StatCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: textColor.withOpacity(0.2)),
+          border: Border.all(color: textColor.withValues(alpha: 0.2)),
         ),
         child: Column(
           children: [
             Text(
               value,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: textColor,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
               label,
-              style: TextStyle(fontSize: 12, color: textColor.withOpacity(0.8)),
+              style: TextStyle(
+                fontSize: 12,
+                color: textColor.withValues(alpha: 0.8),
+              ),
               textAlign: TextAlign.center,
             ),
           ],

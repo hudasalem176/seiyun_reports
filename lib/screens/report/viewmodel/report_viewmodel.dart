@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
@@ -13,7 +12,8 @@ import '../data/report_repository.dart';
 class ReportViewModel extends ChangeNotifier {
   final ReportRepository _repository;
   ReportViewModel(this._repository) {
-    fetchReportsFromLaravel();
+    // Use Future.microtask to avoid notifyListeners() during widget build
+    Future.microtask(() => fetchReportsFromLaravel());
   }
 
   String _selectedCategory = 'تراكم_نفايات';
@@ -34,7 +34,6 @@ class ReportViewModel extends ChangeNotifier {
   bool _isLoadingLocation = false;
   bool get isLoadingLocation => _isLoadingLocation;
 
-  String? _verificationId;
   bool _isPhoneVerified = false;
   bool get isPhoneVerified => _isPhoneVerified;
 
@@ -47,7 +46,7 @@ class ReportViewModel extends ChangeNotifier {
   /// تعيين الفئة الرئيسية للبلاغ المحدد وتصفير الفئة الفرعية
   void setCategory(String category) {
     _selectedCategory = category;
-    _selectedSubType = null; 
+    _selectedSubType = null;
     notifyListeners();
   }
 
@@ -82,6 +81,7 @@ class ReportViewModel extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
+      // تجاهل خطأ التقاط الصورة
     }
   }
 
@@ -119,10 +119,21 @@ class ReportViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// إعادة تعيين كافة حقول الإدخال في البلاغ
+  void resetFields() {
+    _selectedCategory = 'تراكم_نفايات';
+    _selectedSubType = null;
+    _selectedPriority = 'مرتفعة';
+    _image = null;
+    _locationStatus = "يرجى الضغط لتحديد الموقع";
+    notifyListeners();
+  }
+
   List<ReportModel> _reportsList = [];
   List<ReportModel> get reportsList => _reportsList;
 
   String _searchQuery = "";
+
   /// تعيين نص البحث لتصفية قائمة بلاغات المستخدم
   void setSearchQuery(String query) {
     _searchQuery = query;
@@ -139,22 +150,23 @@ class ReportViewModel extends ChangeNotifier {
     }).toList();
   }
 
-  bool _isLoadingReports = false; 
+  bool _isLoadingReports = false;
   bool get isLoadingReports => _isLoadingReports;
 
-  bool _isUploading = false; 
+  bool _isUploading = false;
   bool get isUploading => _isUploading;
 
   /// جلب بلاغات المستخدم من خادم لارفل ومزامنة البلاغات المعلقة
   Future<void> fetchReportsFromLaravel({bool isRefresh = false}) async {
     _isLoadingReports = true;
+    // Defer notifyListeners to avoid 'setState() during build' error
+    await Future.delayed(Duration.zero);
     notifyListeners();
     try {
       await _repository.syncPendingReports();
-      _reportsList = await _repository.fetchMyReports(
-        isRefresh: isRefresh,
-      ); 
+      _reportsList = await _repository.fetchMyReports(isRefresh: isRefresh);
     } catch (e) {
+      // تجاهل خطأ الجلب
     } finally {
       _isLoadingReports = false;
       notifyListeners();
@@ -177,6 +189,7 @@ class ReportViewModel extends ChangeNotifier {
         lat = parts[0].trim();
         lng = parts[1].trim();
       } catch (e) {
+        // خطأ في تحليل الإحداثيات
       }
     }
 
@@ -188,6 +201,7 @@ class ReportViewModel extends ChangeNotifier {
       if (!isInside) {
         _isUploading = false;
         notifyListeners();
+        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
@@ -197,7 +211,7 @@ class ReportViewModel extends ChangeNotifier {
             duration: Duration(seconds: 4),
           ),
         );
-        return; 
+        return;
       }
     }
 
@@ -249,25 +263,29 @@ class ReportViewModel extends ChangeNotifier {
           ).loadDashboardData();
         }
       } catch (e) {
+        // خطأ تحديث لوحة التحكم
       }
 
       String message = "تمت العملية بنجاح";
+      resetFields();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(message), backgroundColor: Colors.green),
       );
       Navigator.pop(context);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            "لا يوجد اتصال بالإنترنت حاليًا سيتم رفعه البلاغ عند توفر الشبكة.",
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              "لا يوجد اتصال بالإنترنت حاليًا سيتم رفع البلاغ عند توفر الشبكة.",
+            ),
+            backgroundColor: Colors.blueGrey,
+            duration: Duration(seconds: 5),
           ),
-          backgroundColor: Colors.blueGrey, 
-          duration: Duration(seconds: 5),
-        ),
-      );
-      fetchReportsFromLaravel();
-      Navigator.pop(context); 
+        );
+        fetchReportsFromLaravel();
+        Navigator.pop(context);
+      }
     }
   }
 

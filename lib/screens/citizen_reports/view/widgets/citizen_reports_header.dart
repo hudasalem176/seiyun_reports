@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 class CitizenReportsHeader extends StatelessWidget {
   final Function(String) onSearch;
 
-  const CitizenReportsHeader({Key? key, required this.onSearch}) : super(key: key);
+  const CitizenReportsHeader({Key? key, required this.onSearch})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -39,14 +40,14 @@ class CitizenReportsHeader extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(width: 48), 
+              const SizedBox(width: 48),
             ],
           ),
           const SizedBox(height: 20),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
             ),
             child: const Text(
@@ -60,10 +61,10 @@ class CitizenReportsHeader extends StatelessWidget {
             onChanged: onSearch,
             decoration: InputDecoration(
               hintText: 'ابحث في البلاغات...',
-              hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
               prefixIcon: const Icon(Icons.search, color: Colors.white),
               filled: true,
-              fillColor: Colors.white.withOpacity(0.3),
+              fillColor: Colors.white.withValues(alpha: 0.3),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
                 borderSide: BorderSide.none,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:seiyun_reports_app/screens/report/view/report_screen.dart';
 
 class CallToActionCard extends StatelessWidget {
   const CallToActionCard({super.key});
@@ -38,7 +39,12 @@ class CallToActionCard extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ReportScreen()),
+              );
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: Colors.green,

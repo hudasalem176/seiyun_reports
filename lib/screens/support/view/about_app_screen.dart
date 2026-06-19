@@ -17,26 +17,32 @@ class AboutAppScreen extends StatelessWidget {
         body: Column(
           children: [
             const SupportHeader(title: "حول التطبيق"),
-            
+
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 20,
+                ),
                 child: Column(
                   children: [
                     const SizedBox(height: 10),
-                    
+
                     Container(
                       height: 110,
                       width: 110,
                       decoration: BoxDecoration(
-                        color: theme.cardColor, 
+                        color: theme.cardColor,
                         borderRadius: BorderRadius.circular(28),
                         boxShadow: [
                           BoxShadow(
-                            color: isDarkMode 
-                                ? Colors.black.withOpacity(0.3) 
-                                : AppTheme.primaryColor.withOpacity(0.08),
+                            color:
+                                isDarkMode
+                                    ? Colors.black.withValues(alpha: 0.3)
+                                    : AppTheme.primaryColor.withValues(
+                                      alpha: 0.08,
+                                    ),
                             blurRadius: 24,
                             offset: const Offset(0, 12),
                           ),
@@ -54,7 +60,7 @@ class AboutAppScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    
+
                     const Text(
                       "بلاغاتي",
                       style: TextStyle(
@@ -66,49 +72,54 @@ class AboutAppScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 13),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryColor.withOpacity(0.12),
+                        color: AppTheme.primaryColor.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Text(
                         "الإصدار 1.0.0",
                         style: TextStyle(
-                          fontSize: 12, 
+                          fontSize: 12,
                           color: AppTheme.primaryColor,
-                          fontWeight: FontWeight.w600
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 35),
-                    
+
                     _buildSectionCard(
                       context,
                       icon: Icons.info_outline,
                       iconColor: AppTheme.primaryColor,
                       title: "عن المنصة",
-                      content: "تطبيق بلاغات سيئون هو منصة تقنية متطورة تهدف إلى تعزيز التواصل المباشر بين المواطنين والجهات الخدمية في مدينة سيئون (صندوق النظافة والتحسين)، لتسهيل رفع البلاغات ومتابعتها والمساهمة معاً في بناء بيئة أنظف ومدينة أجمل.",
+                      content:
+                          "تطبيق بلاغات سيئون هو منصة تقنية متطورة تهدف إلى تعزيز التواصل المباشر بين المواطنين والجهات الخدمية في مدينة سيئون (صندوق النظافة والتحسين)، لتسهيل رفع البلاغات ومتابعتها والمساهمة معاً في بناء بيئة أنظف ومدينة أجمل.",
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     _buildSectionCard(
                       context,
                       icon: Icons.emoji_objects_outlined,
                       iconColor: Colors.orange[700]!,
                       title: "رؤيتنا",
-                      content: "الارتقاء بمستوى الخدمات العامة في المدينة من خلال التحول الرقمي، وإشراك المجتمع بشكل فعال وسريع في رصد وتحسين المظهر الحضاري لمدينة سيئون.",
+                      content:
+                          "الارتقاء بمستوى الخدمات العامة في المدينة من خلال التحول الرقمي، وإشراك المجتمع بشكل فعال وسريع في رصد وتحسين المظهر الحضاري لمدينة سيئون.",
                     ),
-                    
+
                     const SizedBox(height: 40),
-                    
+
                     Text(
                       "© 2026 جميع الحقوق محفوظة لمدينة سيئون",
                       style: TextStyle(
-                        fontSize: 12, 
+                        fontSize: 12,
                         color: theme.textTheme.bodySmall?.color ?? Colors.grey,
-                        fontWeight: FontWeight.w500
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -135,14 +146,14 @@ class AboutAppScreen extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: theme.cardColor, 
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: theme.dividerColor.withOpacity(0.05),
-        ),
+        border: Border.all(color: theme.dividerColor.withValues(alpha: 0.05)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(theme.brightness == Brightness.dark ? 0.2 : 0.02),
+            color: Colors.black.withValues(
+              alpha: theme.brightness == Brightness.dark ? 0.2 : 0.02,
+            ),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -160,7 +171,7 @@ class AboutAppScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
-                  color: theme.textTheme.titleMedium?.color, 
+                  color: theme.textTheme.titleMedium?.color,
                 ),
               ),
             ],
@@ -168,7 +179,7 @@ class AboutAppScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: Divider(
-              color: theme.dividerColor.withOpacity(0.4), 
+              color: theme.dividerColor.withValues(alpha: 0.4),
               height: 1,
             ),
           ),
@@ -176,7 +187,7 @@ class AboutAppScreen extends StatelessWidget {
             content,
             style: TextStyle(
               fontSize: 13.5,
-              color: theme.textTheme.bodyMedium?.color?.withOpacity(0.85), 
+              color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.85),
               height: 1.7,
               fontWeight: FontWeight.w400,
             ),

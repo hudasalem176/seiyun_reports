@@ -14,8 +14,8 @@ import 'package:seiyun_reports_app/screens/home/view/widgets/news_list.dart';
 import 'package:seiyun_reports_app/screens/home/view/widgets/tips_grid.dart';
 import 'package:seiyun_reports_app/screens/home/view/widgets/custom_bottom_nav_bar.dart';
 import 'package:seiyun_reports_app/screens/map/view/map_screen.dart';
-import 'package:seiyun_reports_app/screens/news_tips/view/news_tips_screen.dart';
 import 'package:seiyun_reports_app/screens/profile/view/profile_screen.dart';
+import 'package:seiyun_reports_app/screens/citizen_reports/view/citizen_reports_page.dart';
 
 import '../../citizen_reports/viewmodel/citizen_reports_viewmodel.dart';
 
@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _pages = [
     const _HomeContent(),
     const MapScreen(),
-    const NewsTipsScreen(),
+    const CitizenReportsPage(),
     const ProfileScreen(),
   ];
 
@@ -122,7 +122,7 @@ class _HomeContent extends StatelessWidget {
                   ),
                   const SizedBox(height: 15),
                   const TipsGrid(),
-                  const SizedBox(height: 100), 
+                  const SizedBox(height: 100),
                 ],
               ),
             ),

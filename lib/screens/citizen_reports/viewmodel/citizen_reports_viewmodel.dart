@@ -26,12 +26,13 @@ class CitizenReportsViewModel extends ChangeNotifier {
   ReportStatistics? get stats => _stats;
 
   CitizenReportsViewModel(this._repository) {
-    loadDashboardData(); 
+    loadDashboardData();
     _startAutoRefresh();
   }
+
   /// الإعجاب ببلاغ أو إلغاء الإعجاب به
   Future<void> toggleLike(CitizenReportModel report) async {
-    _autoRefreshTimer?.cancel(); 
+    _autoRefreshTimer?.cancel();
 
     final index = _reports.indexWhere((r) => r.id == report.id);
     if (index == -1) {
@@ -43,9 +44,10 @@ class CitizenReportsViewModel extends ChangeNotifier {
 
     _reports[index] = _reports[index].copyWith(
       isLiked: !wasLiked,
-      likesCount: wasLiked
-          ? (_reports[index].likesCount - 1).clamp(0, 999999)
-          : _reports[index].likesCount + 1,
+      likesCount:
+          wasLiked
+              ? (_reports[index].likesCount - 1).clamp(0, 999999)
+              : _reports[index].likesCount + 1,
     );
     notifyListeners();
 
@@ -54,13 +56,14 @@ class CitizenReportsViewModel extends ChangeNotifier {
     } catch (e) {
       _reports[index] = _reports[index].copyWith(
         isLiked: wasLiked,
-        likesCount: wasLiked
-            ? _reports[index].likesCount + 1
-            : (_reports[index].likesCount - 1).clamp(0, 999999),
+        likesCount:
+            wasLiked
+                ? _reports[index].likesCount + 1
+                : (_reports[index].likesCount - 1).clamp(0, 999999),
       );
       notifyListeners();
     } finally {
-      _startAutoRefresh(); 
+      _startAutoRefresh();
     }
   }
 
@@ -81,10 +84,12 @@ class CitizenReportsViewModel extends ChangeNotifier {
     try {
       await _repository.addView(report.id, newViewsCount);
     } catch (e) {
+      // فشل زيادة المشاهدات
     } finally {
       _startAutoRefresh();
     }
   }
+
   /// بدء مؤقت التحديث التلقائي للبيانات
   void _startAutoRefresh() {
     _autoRefreshTimer?.cancel();
@@ -118,6 +123,7 @@ class CitizenReportsViewModel extends ChangeNotifier {
         }
       }
     } catch (e) {
+      // فشل تحميل البيانات
     } finally {
       if (showLoading) {
         _isLoading = false;
@@ -125,7 +131,6 @@ class CitizenReportsViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
-
 
   /// تعيين نص البحث لتصفية البلاغات
   void setSearchQuery(String query) {
@@ -182,12 +187,13 @@ class CitizenReportsViewModel extends ChangeNotifier {
 
   /// جلب التعليقات الخاصة ببلاغ محدد
   Future<void> fetchComments(int reportId) async {
-    _comments = []; 
+    _comments = [];
     notifyListeners();
     try {
       _comments = await _repository.fetchComments(reportId);
       notifyListeners();
     } catch (e) {
+      // تفشل جلب التعليقات
     }
   }
 

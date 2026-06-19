@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:seiyun_reports_app/core/database/database_helper.dart';
 import 'package:seiyun_reports_app/screens/notifications/models/notification_model.dart';
 
@@ -12,23 +11,23 @@ class NotificationDatabase {
       final db = await DatabaseHelper().database;
 
       await db.transaction((txn) async {
-        await txn.insert(
-          _tableName,
-          {
-            'title': notification.title,
-            'body': notification.body,
-            'time': notification.time.toIso8601String(),
-            'is_read': notification.isRead ? 1 : 0,
-            'user_id': notification.userId,
-          },
-        );
+        await txn.insert(_tableName, {
+          'title': notification.title,
+          'body': notification.body,
+          'time': notification.time.toIso8601String(),
+          'is_read': notification.isRead ? 1 : 0,
+          'user_id': notification.userId,
+        });
       });
     } catch (e) {
+      // فشل الحفظ المحلي
     }
   }
 
   /// جلب كل الإشعارات لـ مستخدم معين (يشمل الإشعارات بدون userId كالتي ترد في الخلفية) مرتبة من الأحدث للأقدم
-  static Future<List<AppNotification>> getAllNotifications(String userId) async {
+  static Future<List<AppNotification>> getAllNotifications(
+    String userId,
+  ) async {
     try {
       final db = await DatabaseHelper().database;
       final maps = await db.query(
@@ -54,6 +53,7 @@ class NotificationDatabase {
         whereArgs: [userId],
       );
     } catch (e) {
+      // فشل التحديث
     }
   }
 
@@ -61,12 +61,9 @@ class NotificationDatabase {
   static Future<void> deleteForUser(String userId) async {
     try {
       final db = await DatabaseHelper().database;
-      await db.delete(
-        _tableName,
-        where: 'user_id = ?',
-        whereArgs: [userId],
-      );
+      await db.delete(_tableName, where: 'user_id = ?', whereArgs: [userId]);
     } catch (e) {
+      // فشل الحذف
     }
   }
 }

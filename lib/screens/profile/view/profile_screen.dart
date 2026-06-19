@@ -7,7 +7,6 @@ import 'package:seiyun_reports_app/screens/profile/view/widgets/profile_header.d
 import 'package:seiyun_reports_app/screens/profile/view/widgets/settings_item.dart';
 import 'package:seiyun_reports_app/screens/profile/view/widgets/logout_button.dart';
 import 'package:seiyun_reports_app/screens/my_reports/view/my_reports_page.dart';
-import 'package:seiyun_reports_app/core/services/notification_service.dart';
 import 'package:seiyun_reports_app/screens/support/view/help_center_screen.dart';
 import 'package:seiyun_reports_app/screens/support/view/about_app_screen.dart';
 
@@ -241,12 +240,14 @@ class ProfileScreen extends StatelessWidget {
                                   await viewModel.sendOTP(
                                     "+967${phoneController.text}",
                                   );
+                                  if (!context.mounted) return;
                                   setDialogState(() => otpSent = true);
                                 } else {
                                   final success = await viewModel.verifyOTP(
                                     otpController.text,
                                   );
                                   if (success) {
+                                    if (!context.mounted) return;
                                     Navigator.pop(context);
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
@@ -254,9 +255,7 @@ class ProfileScreen extends StatelessWidget {
                                       ),
                                     );
                                   } else {
-                                    setDialogState(
-                                      () {},
-                                    ); 
+                                    setDialogState(() {});
                                   }
                                 }
                               },

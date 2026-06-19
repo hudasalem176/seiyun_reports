@@ -55,7 +55,6 @@ class _CitizenReportCardState extends State<CitizenReportCard>
   Widget build(BuildContext context) {
     final report = widget.report;
     return Card(
-
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 2,
@@ -68,14 +67,16 @@ class _CitizenReportCardState extends State<CitizenReportCard>
               children: [
                 CachedNetworkImage(
                   imageUrl: report.user_profile,
-                  imageBuilder: (context, imageProvider) => CircleAvatar(
-                    backgroundImage: imageProvider,
-                    radius: 20,
-                  ),
-                  errorWidget: (context, url, error) => const CircleAvatar(
-                    radius: 20,
-                    child: Icon(Icons.person),
-                  ),
+                  imageBuilder:
+                      (context, imageProvider) => CircleAvatar(
+                        backgroundImage: imageProvider,
+                        radius: 20,
+                      ),
+                  errorWidget:
+                      (context, url, error) => const CircleAvatar(
+                        radius: 20,
+                        child: Icon(Icons.person),
+                      ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -84,7 +85,10 @@ class _CitizenReportCardState extends State<CitizenReportCard>
                     children: [
                       Text(
                         report.user_name,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                       ),
                       Text(
                         report.created_at,
@@ -94,11 +98,19 @@ class _CitizenReportCardState extends State<CitizenReportCard>
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: _getStatusColor(report.status).withOpacity(0.1),
+                    color: _getStatusColor(
+                      report.status,
+                    ).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: _getStatusColor(report.status), width: 1),
+                    border: Border.all(
+                      color: _getStatusColor(report.status),
+                      width: 1,
+                    ),
                   ),
                   child: Text(
                     report.status,
@@ -120,7 +132,8 @@ class _CitizenReportCardState extends State<CitizenReportCard>
               height: 200,
               width: double.infinity,
               fit: BoxFit.cover,
-              errorWidget: (context, url, error) => const Icon(Icons.broken_image),
+              errorWidget:
+                  (context, url, error) => const Icon(Icons.broken_image),
             ),
           ),
 
@@ -131,7 +144,10 @@ class _CitizenReportCardState extends State<CitizenReportCard>
               children: [
                 Text(
                   report.title,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -140,7 +156,6 @@ class _CitizenReportCardState extends State<CitizenReportCard>
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-               
               ],
             ),
           ),
@@ -168,9 +183,8 @@ class _CitizenReportCardState extends State<CitizenReportCard>
                 ScaleTransition(
                   scale: _scaleAnim,
                   child: _ActionButton(
-                    icon: report.isLiked
-                        ? Icons.favorite
-                        : Icons.favorite_border,
+                    icon:
+                        report.isLiked ? Icons.favorite : Icons.favorite_border,
                     label: '${report.likesCount}',
                     color: report.isLiked ? Colors.red : Colors.grey[600]!,
                     onTap: _handleLike,
@@ -186,14 +200,16 @@ class _CitizenReportCardState extends State<CitizenReportCard>
               padding: const EdgeInsets.all(12),
               margin: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Theme.of(context).brightness == Brightness.dark 
-                    ? Colors.white 
-                    : AppTheme.primaryGreen.withOpacity(0.05),
+                color:
+                    Theme.of(context).brightness == Brightness.dark
+                        ? Colors.grey.shade900
+                        : AppTheme.primaryGreen.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: Theme.of(context).brightness == Brightness.dark 
-                      ? Colors.white 
-                      : AppTheme.primaryGreen.withOpacity(0.2),
+                  color:
+                      Theme.of(context).brightness == Brightness.dark
+                          ? Colors.grey.shade800
+                          : AppTheme.primaryGreen.withValues(alpha: 0.2),
                 ),
               ),
               child: Column(
@@ -202,11 +218,12 @@ class _CitizenReportCardState extends State<CitizenReportCard>
                   Row(
                     children: [
                       Icon(
-                        Icons.reply, 
-                        size: 16, 
-                        color: Theme.of(context).brightness == Brightness.dark 
-                            ? AppTheme.primaryGreen 
-                            : AppTheme.primaryGreen,
+                        Icons.reply,
+                        size: 16,
+                        color:
+                            Theme.of(context).brightness == Brightness.dark
+                                ? AppTheme.primaryGreen
+                                : AppTheme.primaryGreen,
                       ),
                       const SizedBox(width: 6),
                       const Text(
@@ -221,28 +238,28 @@ class _CitizenReportCardState extends State<CitizenReportCard>
                   ),
                   const SizedBox(height: 6),
                   Text(
-                   'تمت معالجة هذا البلاغ بنجاح',
+                    'تمت معالجة هذا البلاغ بنجاح',
                     style: TextStyle(
-                      fontSize: 12, 
-                      color: Theme.of(context).brightness == Brightness.dark 
-                          ? Colors.black87 
-                          : Colors.black87,
+                      fontSize: 12,
+                      color:
+                          Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white70
+                              : Colors.black87,
                     ),
                   ),
                   const SizedBox(height: 10),
                   ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: CachedNetworkImage(
-                  imageUrl: report.imageAfterProcessing!, 
-                  height: 150,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorWidget: (context, url, error) => const Icon(Icons.broken_image),
-                
-            ),
-          ),
-        
-
+                    borderRadius: BorderRadius.circular(8),
+                    child: CachedNetworkImage(
+                      imageUrl: report.imageAfterProcessing!,
+                      height: 150,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorWidget:
+                          (context, url, error) =>
+                              const Icon(Icons.broken_image),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -291,7 +308,11 @@ class _ActionButton extends StatelessWidget {
             const SizedBox(width: 4),
             Text(
               label,
-              style: TextStyle(color: color, fontSize: 13, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                color: color,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),

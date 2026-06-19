@@ -32,7 +32,8 @@ class PickupSchedulesViewModel extends ChangeNotifier {
   String get currentLocationName => _currentLocationName;
 
   PickupSchedulesViewModel(this._repository, this._locationService) {
-    fetchData();
+    // Use Future.microtask to avoid notifyListeners() during widget build
+    Future.microtask(() => fetchData());
     _startAutoRefresh();
   }
 
@@ -46,6 +47,8 @@ class PickupSchedulesViewModel extends ChangeNotifier {
   Future<void> fetchData({bool showLoading = true}) async {
     if (showLoading) {
       _isLoading = true;
+      // Defer notifyListeners to avoid 'setState() during build' error
+      await Future.delayed(Duration.zero);
       notifyListeners();
     }
 
@@ -123,7 +126,7 @@ class PickupSchedulesViewModel extends ChangeNotifier {
         now.day + 1,
         hour,
         minute,
-      ).subtract(const Duration(minutes: 30)); 
+      ).subtract(const Duration(minutes: 30));
 
       if (scheduledDate.isBefore(now)) return;
 
@@ -134,8 +137,7 @@ class PickupSchedulesViewModel extends ChangeNotifier {
             'سيبدأ رفع النفايات في ${schedule.startTime} في مناطق: ${schedule.locations.take(2).join(", ")}',
         scheduledDate: scheduledDate,
       );
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   @override

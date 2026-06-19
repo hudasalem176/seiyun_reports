@@ -58,10 +58,13 @@ class ProfileViewModel extends ChangeNotifier {
   ProfileViewModel(this._repository, this._locationService) {
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user != null) {
-        _loadProfileData();
-        fetchProfile();
+        // Use Future.microtask to avoid notifyListeners() during widget build
+        Future.microtask(() {
+          _loadProfileData();
+          fetchProfile();
+        });
       } else {
-        _clearLocalState();
+        Future.microtask(() => _clearLocalState());
       }
     });
   }
@@ -82,7 +85,10 @@ class ProfileViewModel extends ChangeNotifier {
 
   /// جلب بيانات الملف الشخصي للمستخدم من المستودع وحفظها محلياً
   Future<void> fetchProfile() async {
+    // Avoid calling notifyListeners() synchronously if this might be called during build/initState
     _isLoading = true;
+    // We can use scheduleMicrotask or just wait for the first async gap
+    await Future.delayed(Duration.zero);
     notifyListeners();
 
     try {
@@ -90,10 +96,15 @@ class ProfileViewModel extends ChangeNotifier {
       if (_profile != null) {
         _userName = _profile!.fullName;
         _userPhone = _profile!.phone;
-        
+
         String resolvedAddress = _profile!.areaName;
-        if (resolvedAddress.isEmpty && _profile!.latitude != 0.0 && _profile!.longitude != 0.0) {
-          resolvedAddress = _locationService.getAreaName(_profile!.latitude, _profile!.longitude);
+        if (resolvedAddress.isEmpty &&
+            _profile!.latitude != 0.0 &&
+            _profile!.longitude != 0.0) {
+          resolvedAddress = _locationService.getAreaName(
+            _profile!.latitude,
+            _profile!.longitude,
+          );
         }
         _userAddress = resolvedAddress;
         _userEmail = _profile!.email;
@@ -131,7 +142,10 @@ class ProfileViewModel extends ChangeNotifier {
           desiredAccuracy: LocationAccuracy.high,
         );
 
-        final localAreaName = _locationService.getAreaName(position.latitude, position.longitude);
+        final localAreaName = _locationService.getAreaName(
+          position.latitude,
+          position.longitude,
+        );
 
         try {
           final updatedProfile = await _repository.updateProfile(
@@ -140,7 +154,10 @@ class ProfileViewModel extends ChangeNotifier {
           );
           if (updatedProfile != null) {
             _profile = updatedProfile;
-            _userAddress = updatedProfile.areaName.isNotEmpty ? updatedProfile.areaName : localAreaName;
+            _userAddress =
+                updatedProfile.areaName.isNotEmpty
+                    ? updatedProfile.areaName
+                    : localAreaName;
             await PrefHelper.saveUserAddress(_userAddress!);
             await PrefHelper.saveUserLocation(
               updatedProfile.latitude,
@@ -184,7 +201,10 @@ class ProfileViewModel extends ChangeNotifier {
       );
       if (updatedProfile != null) {
         _profile = updatedProfile;
-        _userAddress = updatedProfile.areaName.isNotEmpty ? updatedProfile.areaName : localAreaName;
+        _userAddress =
+            updatedProfile.areaName.isNotEmpty
+                ? updatedProfile.areaName
+                : localAreaName;
         await PrefHelper.saveUserAddress(_userAddress!);
         await PrefHelper.saveUserLocation(
           updatedProfile.latitude,
@@ -225,7 +245,6 @@ class ProfileViewModel extends ChangeNotifier {
 
     notifyListeners();
   }
-
 
   /// إرسال رمز التحقق (OTP) إلى رقم الهاتف المحدد لتوثيقه
   Future<void> sendOTP(String phoneNumber) async {
@@ -321,8 +340,7 @@ class ProfileViewModel extends ChangeNotifier {
         await PrefHelper.saveProfileImagePath(pickedFile.path);
         notifyListeners();
       }
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   /// تسجيل خروج المستخدم وتصفير كافة البيانات المحلية والحالة الحالية

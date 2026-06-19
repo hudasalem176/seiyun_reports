@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:seiyun_reports_app/screens/report/viewmodel/report_viewmodel.dart';
-import 'package:seiyun_reports_app/core/theme/app_theme.dart';
 
 class CategoryGrid extends StatelessWidget {
   const CategoryGrid({super.key});
@@ -66,14 +65,16 @@ class CategoryGrid extends StatelessWidget {
               crossAxisCount: 2,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
-              childAspectRatio: 1.25, 
+              childAspectRatio: 1.25,
             ),
             itemCount: categories.length,
             itemBuilder: (context, index) {
               final cat = categories[index];
               final bool isSelected = reportVM.selectedCategory == cat['id'];
               final Color catColor = cat['color'] as Color;
-              final List<Color> gradColors = List<Color>.from(cat['gradient'] as List);
+              final List<Color> gradColors = List<Color>.from(
+                cat['gradient'] as List,
+              );
 
               return GestureDetector(
                 onTap: () {
@@ -84,38 +85,46 @@ class CategoryGrid extends StatelessWidget {
                   duration: const Duration(milliseconds: 220),
                   curve: Curves.easeInOut,
                   decoration: BoxDecoration(
-                    gradient: isSelected
-                        ? LinearGradient(
-                            colors: gradColors,
-                            begin: Alignment.topRight,
-                            end: Alignment.bottomLeft,
-                          )
-                        : null,
+                    gradient:
+                        isSelected
+                            ? LinearGradient(
+                              colors: gradColors,
+                              begin: Alignment.topRight,
+                              end: Alignment.bottomLeft,
+                            )
+                            : null,
                     color: isSelected ? null : Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: isSelected
-                          ? Colors.transparent
-                          : catColor.withOpacity(0.25),
+                      color:
+                          isSelected
+                              ? Colors.transparent
+                              : catColor.withValues(alpha: 0.25),
                       width: 1.5,
                     ),
-                    boxShadow: isSelected
-                        ? [
-                            BoxShadow(
-                              color: catColor.withOpacity(0.35),
-                              blurRadius: 14,
-                              offset: const Offset(0, 6),
-                            ),
-                          ]
-                        : [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(isDark ? 0.15 : 0.05),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
+                    boxShadow:
+                        isSelected
+                            ? [
+                              BoxShadow(
+                                color: catColor.withValues(alpha: 0.35),
+                                blurRadius: 14,
+                                offset: const Offset(0, 6),
+                              ),
+                            ]
+                            : [
+                              BoxShadow(
+                                color: Colors.black.withValues(
+                                  alpha: isDark ? 0.15 : 0.05,
+                                ),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -123,9 +132,12 @@ class CategoryGrid extends StatelessWidget {
                         width: 46,
                         height: 46,
                         decoration: BoxDecoration(
-                          color: isSelected
-                              ? Colors.white.withOpacity(0.2)
-                              : (cat['bg'] as Color).withOpacity(isDark ? 0.2 : 1.0),
+                          color:
+                              isSelected
+                                  ? Colors.white.withValues(alpha: 0.2)
+                                  : (cat['bg'] as Color).withValues(
+                                    alpha: isDark ? 0.2 : 1.0,
+                                  ),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -146,9 +158,12 @@ class CategoryGrid extends StatelessWidget {
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
                                 height: 1.2,
-                                color: isSelected
-                                    ? Colors.white
-                                    : Theme.of(context).textTheme.titleMedium?.color,
+                                color:
+                                    isSelected
+                                        ? Colors.white
+                                        : Theme.of(
+                                          context,
+                                        ).textTheme.titleMedium?.color,
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.visible,
@@ -159,9 +174,10 @@ class CategoryGrid extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 10.5,
                                 height: 1.2,
-                                color: isSelected
-                                    ? Colors.white.withOpacity(0.8)
-                                    : Colors.grey[500],
+                                color:
+                                    isSelected
+                                        ? Colors.white.withValues(alpha: 0.8)
+                                        : Colors.grey[500],
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.visible,
@@ -170,8 +186,11 @@ class CategoryGrid extends StatelessWidget {
                         ),
                       ),
                       if (isSelected)
-                        const Icon(Icons.check_circle_rounded,
-                            color: Colors.white, size: 18),
+                        const Icon(
+                          Icons.check_circle_rounded,
+                          color: Colors.white,
+                          size: 18,
+                        ),
                     ],
                   ),
                 ),
@@ -179,127 +198,156 @@ class CategoryGrid extends StatelessWidget {
             },
           ),
 
-          Builder(builder: (context) {
-            final selectedCat = categories.firstWhere(
-              (c) => c['id'] == reportVM.selectedCategory,
-              orElse: () => {},
-            );
+          Builder(
+            builder: (context) {
+              final selectedCat = categories.firstWhere(
+                (c) => c['id'] == reportVM.selectedCategory,
+                orElse: () => {},
+              );
 
-            final subTypes = selectedCat.isNotEmpty
-                ? (selectedCat['subTypes'] as List<String>)
-                : <String>[];
+              final subTypes =
+                  selectedCat.isNotEmpty
+                      ? (selectedCat['subTypes'] as List<String>)
+                      : <String>[];
 
-            if (subTypes.isEmpty) return const SizedBox.shrink();
+              if (subTypes.isEmpty) return const SizedBox.shrink();
 
-            final Color catColor = selectedCat['color'] as Color;
+              final Color catColor = selectedCat['color'] as Color;
 
-            return AnimatedSize(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeInOut,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 4,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            color: catColor,
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'حدد نوع المشكلة',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).textTheme.titleMedium?.color,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: catColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            'مطلوب',
-                            style: TextStyle(
-                              fontSize: 10,
+              return AnimatedSize(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeInOut,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 4,
+                            height: 20,
+                            decoration: BoxDecoration(
                               color: catColor,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'حدد نوع المشكلة',
+                            style: TextStyle(
+                              fontSize: 14,
                               fontWeight: FontWeight.bold,
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium?.color,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    ...subTypes.map((sub) {
-                      final isSubSelected = reportVM.selectedSubType == sub;
-                      return GestureDetector(
-                        onTap: () => reportVM.setSubType(sub),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 180),
-                          margin: const EdgeInsets.only(bottom: 8),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: isSubSelected
-                                ? catColor.withOpacity(0.08)
-                                : Theme.of(context).cardColor,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                              color: isSubSelected ? catColor : Colors.grey.withOpacity(0.2),
-                              width: isSubSelected ? 2 : 1,
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: catColor.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'مطلوب',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: catColor,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                          child: Row(
-                            children: [
-                              AnimatedContainer(
-                                duration: const Duration(milliseconds: 180),
-                                width: 20,
-                                height: 20,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: isSubSelected ? catColor : Colors.grey[400]!,
-                                    width: 2,
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      ...subTypes.map((sub) {
+                        final isSubSelected = reportVM.selectedSubType == sub;
+                        return GestureDetector(
+                          onTap: () => reportVM.setSubType(sub),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 180),
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color:
+                                  isSubSelected
+                                      ? catColor.withValues(alpha: 0.08)
+                                      : Theme.of(context).cardColor,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color:
+                                    isSubSelected
+                                        ? catColor
+                                        : Colors.grey.withValues(alpha: 0.2),
+                                width: isSubSelected ? 2 : 1,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                AnimatedContainer(
+                                  duration: const Duration(milliseconds: 180),
+                                  width: 20,
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color:
+                                          isSubSelected
+                                              ? catColor
+                                              : Colors.grey[400]!,
+                                      width: 2,
+                                    ),
+                                    color:
+                                        isSubSelected
+                                            ? catColor
+                                            : Colors.transparent,
                                   ),
-                                  color: isSubSelected ? catColor : Colors.transparent,
+                                  child:
+                                      isSubSelected
+                                          ? const Icon(
+                                            Icons.check,
+                                            color: Colors.white,
+                                            size: 12,
+                                          )
+                                          : null,
                                 ),
-                                child: isSubSelected
-                                    ? const Icon(Icons.check,
-                                        color: Colors.white, size: 12)
-                                    : null,
-                              ),
-                              const SizedBox(width: 12),
-                              Text(
-                                sub,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: isSubSelected
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                  color: isSubSelected
-                                      ? catColor
-                                      : Theme.of(context).textTheme.bodyMedium?.color,
+                                const SizedBox(width: 12),
+                                Text(
+                                  sub,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight:
+                                        isSubSelected
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                    color:
+                                        isSubSelected
+                                            ? catColor
+                                            : Theme.of(
+                                              context,
+                                            ).textTheme.bodyMedium?.color,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    }),
-                  ],
+                        );
+                      }),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            },
+          ),
         ],
       ),
     );

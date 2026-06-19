@@ -20,10 +20,10 @@ class AuthRepository {
     String? token,
     String? email,
   }) async {
-
     final response = await _authService.login(
       role: role,
       name: name,
+      email: email,
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
@@ -40,11 +40,11 @@ class AuthRepository {
       );
 
       await PrefHelper.saveLoginStatus(true);
-      
+
       if (laravelToken != null) {
         await PrefHelper.saveToken(laravelToken);
       }
-      
+
       await PrefHelper.saveRole(serverRole);
 
       await PrefHelper.saveUserId(userModel.id);
@@ -57,4 +57,3 @@ class AuthRepository {
     }
   }
 }
-

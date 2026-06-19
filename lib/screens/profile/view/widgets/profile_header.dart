@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:seiyun_reports_app/core/theme/app_theme.dart';
 import 'package:seiyun_reports_app/screens/profile/viewmodel/profile_viewmodel.dart';
@@ -59,7 +58,7 @@ class ProfileHeader extends StatelessWidget {
                     icon: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -85,7 +84,7 @@ class ProfileHeader extends StatelessWidget {
               borderRadius: BorderRadius.circular(30),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryColor.withOpacity(0.12),
+                  color: AppTheme.primaryColor.withValues(alpha: 0.12),
                   blurRadius: 25,
                   offset: const Offset(0, 10),
                 ),
@@ -112,7 +111,7 @@ class ProfileHeader extends StatelessWidget {
                         "عضو فعال",
                         style: TextStyle(
                           fontSize: 13,
-                          color: AppTheme.primaryColor.withOpacity(0.8),
+                          color: AppTheme.primaryColor.withValues(alpha: 0.8),
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -209,8 +208,8 @@ class ProfileHeader extends StatelessWidget {
                             style: TextStyle(fontSize: 12),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primaryColor.withOpacity(
-                              0.1,
+                            backgroundColor: AppTheme.primaryColor.withValues(
+                              alpha: 0.1,
                             ),
                             foregroundColor: AppTheme.primaryColor,
                             elevation: 0,
@@ -260,8 +259,8 @@ class ProfileHeader extends StatelessWidget {
                             style: TextStyle(fontSize: 12),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primaryColor.withOpacity(
-                              0.1,
+                            backgroundColor: AppTheme.primaryColor.withValues(
+                              alpha: 0.1,
                             ),
                             foregroundColor: AppTheme.primaryColor,
                             elevation: 0,
@@ -363,13 +362,13 @@ class ProfileHeader extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color: AppTheme.primaryColor.withOpacity(0.1),
+              color: AppTheme.primaryColor.withValues(alpha: 0.1),
               width: 4,
             ),
           ),
           child: CircleAvatar(
             radius: 46,
-            backgroundColor: AppTheme.primaryColor.withOpacity(0.05),
+            backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.05),
             backgroundImage:
                 viewModel.profileImage != null
                     ? FileImage(viewModel.profileImage!)
@@ -404,7 +403,7 @@ class ProfileHeader extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -438,7 +437,7 @@ class ProfileHeader extends StatelessWidget {
               fontSize: 14,
               color: Theme.of(
                 context,
-              ).textTheme.bodyMedium?.color?.withOpacity(0.8),
+              ).textTheme.bodyMedium?.color?.withValues(alpha: 0.8),
               height: 1.2,
             ),
             overflow: TextOverflow.ellipsis,

@@ -45,11 +45,13 @@ class _ServicesScreenContent extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 15),
-                    ...vm.availableServices.map((service) => _ServiceCard(
-                          service: service,
-                          isSelected: vm.selectedService?.id == service.id,
-                          onTap: () => vm.selectService(service),
-                        )),
+                    ...vm.availableServices.map(
+                      (service) => _ServiceCard(
+                        service: service,
+                        isSelected: vm.selectedService?.id == service.id,
+                        onTap: () => vm.selectService(service),
+                      ),
+                    ),
                     const SizedBox(height: 30),
                     Text(
                       "التاريخ المفضل *",
@@ -146,7 +148,7 @@ class _Header extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(width: 48), 
+              const SizedBox(width: 48),
             ],
           ),
           const SizedBox(height: 20),
@@ -193,7 +195,10 @@ class _ServiceCard extends StatelessWidget {
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? const Color(0xFF4285F4) : (isDark ? Colors.grey.shade800 : Colors.grey.shade200),
+            color:
+                isSelected
+                    ? const Color(0xFF4285F4)
+                    : (isDark ? Colors.grey.shade800 : Colors.grey.shade200),
             width: isSelected ? 2 : 1,
           ),
           boxShadow: [
@@ -222,7 +227,7 @@ class _ServiceCard extends StatelessWidget {
                   Text(
                     service.title,
                     style: TextStyle(
-                      fontWeight: FontWeight.bold, 
+                      fontWeight: FontWeight.bold,
                       fontSize: 16,
                       color: Theme.of(context).textTheme.titleMedium?.color,
                     ),
@@ -230,21 +235,26 @@ class _ServiceCard extends StatelessWidget {
                   Text(
                     service.subtitle,
                     style: TextStyle(
-                      color: isDark ? Colors.grey.shade400 : Colors.grey.shade600, 
+                      color:
+                          isDark ? Colors.grey.shade400 : Colors.grey.shade600,
                       fontSize: 12,
                     ),
                   ),
                   const SizedBox(height: 5),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
-                      color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
+                      color:
+                          isDark ? Colors.grey.shade800 : Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
                       service.priceLabel ?? "${service.price?.toInt()} ريال",
                       style: TextStyle(
-                        fontSize: 12, 
+                        fontSize: 12,
                         fontWeight: FontWeight.bold,
                         color: isDark ? Colors.white70 : Colors.black87,
                       ),
@@ -254,7 +264,11 @@ class _ServiceCard extends StatelessWidget {
               ),
             ),
             if (isSelected)
-              const Icon(Icons.check_circle, color: Color(0xFF4285F4), size: 24),
+              const Icon(
+                Icons.check_circle,
+                color: Color(0xFF4285F4),
+                size: 24,
+              ),
           ],
         ),
       ),
@@ -274,10 +288,14 @@ class _DatePickerField extends StatelessWidget {
     return GestureDetector(
       onTap: () async {
         final now = DateTime.now();
-        final initial = (vm.selectedDate != null && !vm.selectedDate!.isBefore(DateTime(now.year, now.month, now.day)))
-            ? vm.selectedDate!
-            : now;
-            
+        final initial =
+            (vm.selectedDate != null &&
+                    !vm.selectedDate!.isBefore(
+                      DateTime(now.year, now.month, now.day),
+                    ))
+                ? vm.selectedDate!
+                : now;
+
         final date = await showDatePicker(
           context: context,
           initialDate: initial,
@@ -291,7 +309,9 @@ class _DatePickerField extends StatelessWidget {
         decoration: BoxDecoration(
           color: isDark ? Colors.grey.shade900 : Colors.grey.shade50,
           borderRadius: BorderRadius.circular(15),
-          border: Border.all(color: isDark ? Colors.grey.shade800 : Colors.grey.shade200),
+          border: Border.all(
+            color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+          ),
         ),
         child: Row(
           children: [
@@ -309,10 +329,17 @@ class _DatePickerField extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF4A148C).withValues(alpha: 0.3) : const Color(0xFFF3E5F5),
+                color:
+                    isDark
+                        ? const Color(0xFF4A148C).withValues(alpha: 0.3)
+                        : const Color(0xFFF3E5F5),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.calendar_today, color: Color(0xFF9C27B0), size: 20),
+              child: const Icon(
+                Icons.calendar_today,
+                color: Color(0xFF9C27B0),
+                size: 20,
+              ),
             ),
           ],
         ),
@@ -378,12 +405,18 @@ class _TimeOption extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 15),
           decoration: BoxDecoration(
-            color: isSelected 
-                ? (isDark ? const Color(0xFF1E88E5).withValues(alpha: 0.2) : const Color(0xFFE3F2FD)) 
-                : Theme.of(context).cardColor,
+            color:
+                isSelected
+                    ? (isDark
+                        ? const Color(0xFF1E88E5).withValues(alpha: 0.2)
+                        : const Color(0xFFE3F2FD))
+                    : Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(15),
             border: Border.all(
-              color: isSelected ? const Color(0xFF4285F4) : (isDark ? Colors.grey.shade800 : Colors.grey.shade200),
+              color:
+                  isSelected
+                      ? const Color(0xFF4285F4)
+                      : (isDark ? Colors.grey.shade800 : Colors.grey.shade200),
               width: isSelected ? 2 : 1,
             ),
           ),
@@ -391,14 +424,18 @@ class _TimeOption extends StatelessWidget {
             children: [
               Icon(
                 Icons.access_time,
-                color: isSelected ? const Color(0xFF4285F4) : Colors.grey.shade400,
+                color:
+                    isSelected ? const Color(0xFF4285F4) : Colors.grey.shade400,
                 size: 24,
               ),
               const SizedBox(height: 8),
               Text(
                 label,
                 style: TextStyle(
-                  color: isSelected ? const Color(0xFF4285F4) : Theme.of(context).textTheme.bodyLarge?.color,
+                  color:
+                      isSelected
+                          ? const Color(0xFF4285F4)
+                          : Theme.of(context).textTheme.bodyLarge?.color,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -428,7 +465,9 @@ class _PhoneField extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? Colors.grey.shade900 : Colors.grey.shade50,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: isDark ? Colors.grey.shade800 : Colors.grey.shade200),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+        ),
       ),
       child: TextField(
         controller: vm.phoneController,
@@ -437,15 +476,27 @@ class _PhoneField extends StatelessWidget {
         style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
         decoration: InputDecoration(
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+          hintText: "77x xxx xxx",
+          hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 14),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 15,
+            vertical: 15,
+          ),
           suffixIcon: Container(
             margin: const EdgeInsets.all(8),
             padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1B5E20).withValues(alpha: 0.3) : const Color(0xFFE8F5E9),
+              color:
+                  isDark
+                      ? const Color(0xFF1B5E20).withValues(alpha: 0.3)
+                      : const Color(0xFFE8F5E9),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.phone_outlined, color: Color(0xFF4CAF50), size: 20),
+            child: const Icon(
+              Icons.phone_outlined,
+              color: Color(0xFF4CAF50),
+              size: 20,
+            ),
           ),
         ),
       ),
@@ -466,7 +517,9 @@ class _NotesField extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? Colors.grey.shade900 : Colors.grey.shade50,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: isDark ? Colors.grey.shade800 : Colors.grey.shade200),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+        ),
       ),
       child: TextField(
         controller: vm.notesController,
@@ -475,7 +528,7 @@ class _NotesField extends StatelessWidget {
         decoration: InputDecoration(
           hintText: "أضف اي تفاصيل اضافية ...",
           hintStyle: TextStyle(
-            color: isDark ? Colors.grey.shade500 : Colors.grey.shade600, 
+            color: isDark ? Colors.grey.shade500 : Colors.grey.shade600,
             fontSize: 14,
           ),
           border: InputBorder.none,
@@ -498,7 +551,10 @@ class _OrderSummary extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF01579B).withValues(alpha: 0.2) : const Color(0xFFE1F5FE),
+        color:
+            isDark
+                ? const Color(0xFF01579B).withValues(alpha: 0.2)
+                : const Color(0xFFE1F5FE),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
@@ -509,7 +565,7 @@ class _OrderSummary extends StatelessWidget {
               Text(
                 "ملخص الطلب",
                 style: TextStyle(
-                  fontWeight: FontWeight.bold, 
+                  fontWeight: FontWeight.bold,
                   fontSize: 16,
                   color: isDark ? Colors.lightBlue.shade100 : Colors.black87,
                 ),
@@ -535,7 +591,8 @@ class _OrderSummary extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                vm.selectedService?.priceLabel ?? "${vm.selectedService?.price?.toInt() ?? 0} ريال",
+                vm.selectedService?.priceLabel ??
+                    "${vm.selectedService?.price?.toInt() ?? 0} ريال",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: isDark ? Colors.white : Colors.black,
@@ -560,9 +617,11 @@ class _SubmitButton extends StatelessWidget {
       height: 60,
       child: ElevatedButton.icon(
         onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("تم ارسال طلبك بنجاح")),
-          );
+          final vm = Provider.of<ServicesViewModel>(context, listen: false);
+          vm.submitOrder();
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text("تم ارسال طلبك بنجاح")));
         },
         icon: const Icon(Icons.send, size: 20),
         label: const Text(

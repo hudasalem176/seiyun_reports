@@ -53,18 +53,21 @@ class HelpCenterScreen extends StatelessWidget {
         body: Column(
           children: [
             const SupportHeader(title: "مركز المساعدة"),
-            
+
             Expanded(
               child: ListView(
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 25,
+                ),
                 children: [
                   Text(
                     "كيف يمكننا مساعدتك؟",
                     style: TextStyle(
-                      fontSize: 20, 
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: theme.textTheme.titleLarge?.color, 
+                      color: theme.textTheme.titleLarge?.color,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -89,13 +92,15 @@ class HelpCenterScreen extends StatelessWidget {
                     "هذا التطبيق مبادرة لتحسين الخدمات في مدينة سيئون وتسهيل التواصل بين المواطنين وصندوق النظافة.",
                   ),
                   const SizedBox(height: 35),
-                  
+
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withOpacity(0.12), 
+                      color: AppTheme.primaryColor.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppTheme.primaryColor.withOpacity(0.15)),
+                      border: Border.all(
+                        color: AppTheme.primaryColor.withValues(alpha: 0.15),
+                      ),
                     ),
                     child: Column(
                       children: [
@@ -108,9 +113,9 @@ class HelpCenterScreen extends StatelessWidget {
                         Text(
                           "لم تجد إجابة لسؤالك؟",
                           style: TextStyle(
-                            fontWeight: FontWeight.bold, 
+                            fontWeight: FontWeight.bold,
                             fontSize: 16,
-                            color: theme.textTheme.titleMedium?.color, 
+                            color: theme.textTheme.titleMedium?.color,
                           ),
                         ),
                         const SizedBox(height: 5),
@@ -118,8 +123,9 @@ class HelpCenterScreen extends StatelessWidget {
                           "فريق الدعم الفني متواجد لمساعدتك في أي وقت",
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 13, 
-                            color: theme.textTheme.bodySmall?.color ?? Colors.grey,
+                            fontSize: 13,
+                            color:
+                                theme.textTheme.bodySmall?.color ?? Colors.grey,
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -136,7 +142,10 @@ class HelpCenterScreen extends StatelessWidget {
                           ),
                           child: const Text(
                             "تواصل معنا الآن",
-                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],
@@ -158,31 +167,40 @@ class HelpCenterScreen extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       decoration: BoxDecoration(
-        color: theme.cardColor, 
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDarkMode ? 0.2 : 0.01),
+            color: Colors.black.withValues(alpha: isDarkMode ? 0.2 : 0.01),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: theme.dividerColor.withOpacity(0.08)),
+        border: Border.all(color: theme.dividerColor.withValues(alpha: 0.08)),
       ),
       child: ExpansionTile(
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
-        collapsedShape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+        collapsedShape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
         iconColor: AppTheme.primaryColor,
         collapsedIconColor: theme.hintColor,
         title: Text(
           question,
           style: TextStyle(
-            fontSize: 14.5, 
-            fontWeight: FontWeight.w700, 
-            color: theme.textTheme.titleMedium?.color, 
+            fontSize: 14.5,
+            fontWeight: FontWeight.w700,
+            color: theme.textTheme.titleMedium?.color,
           ),
         ),
-        childrenPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 16, top: 4),
+        childrenPadding: const EdgeInsets.only(
+          left: 16,
+          right: 16,
+          bottom: 16,
+          top: 4,
+        ),
         expandedCrossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -190,7 +208,7 @@ class HelpCenterScreen extends StatelessWidget {
             style: TextStyle(
               fontSize: 13.5,
               height: 1.6,
-              color: theme.textTheme.bodyMedium?.color?.withOpacity(0.85), 
+              color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.85),
             ),
           ),
         ],

@@ -11,16 +11,15 @@ class CitizenReportsPage extends StatelessWidget {
   const CitizenReportsPage({Key? key}) : super(key: key);
 
   @override
-
   Widget build(BuildContext context) {
     return Scaffold(
       body: Consumer<CitizenReportsViewModel>(
         builder: (context, viewModel, child) {
           return RefreshIndicator(
-              onRefresh: () async {
-                await viewModel.loadDashboardData(showLoading: true);
-              },
-              child: SingleChildScrollView(
+            onRefresh: () async {
+              await viewModel.loadDashboardData(showLoading: true);
+            },
+            child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               child: Column(
                 children: [
@@ -50,14 +49,17 @@ class CitizenReportsPage extends StatelessWidget {
                             _showCommentsBottomSheet(context, report);
                           },
                           onShare: () {
-                            final String shareText = 'شاهد هذا البلاغ في تطبيق سيئون:\n\n'
+                            final String shareText =
+                                'شاهد هذا البلاغ في تطبيق سيئون:\n\n'
                                 'العنوان: ${report.title}\n'
                                 'الوصف: ${report.description}\n\n'
                                 'حالة البلاغ: ${report.status}';
                             Share.share(shareText);
                           },
                           onLike: () {
-                            context.read<CitizenReportsViewModel>().toggleLike(report);
+                            context.read<CitizenReportsViewModel>().toggleLike(
+                              report,
+                            );
                           },
                         );
                       },
@@ -65,20 +67,24 @@ class CitizenReportsPage extends StatelessWidget {
                   const SizedBox(height: 20),
                 ],
               ),
-            )
-            );
-          },
-        ),
-      );
+            ),
+          );
+        },
+      ),
+    );
   }
 
-  void _showCommentsBottomSheet(BuildContext context, CitizenReportModel report) {
+  void _showCommentsBottomSheet(
+    BuildContext context,
+    CitizenReportModel report,
+  ) {
     final viewModel = context.read<CitizenReportsViewModel>();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => _CommentsSheet(report: report, viewModel: viewModel),
+      builder:
+          (context) => _CommentsSheet(report: report, viewModel: viewModel),
     );
   }
 }
@@ -158,14 +164,19 @@ class _CommentsSheetState extends State<_CommentsSheet> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
               decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.2))),
+                border: Border(
+                  bottom: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
+                ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     'التعليقات (${widget.report.commentsCount})',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
@@ -181,17 +192,24 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                   if (vm.comments.isEmpty && widget.report.commentsCount > 0) {
                     return const Center(child: CircularProgressIndicator());
                   }
-                  
+
                   if (vm.comments.isEmpty) {
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.chat_bubble_outline, size: 40, color: Colors.grey[300]),
+                          Icon(
+                            Icons.chat_bubble_outline,
+                            size: 40,
+                            color: Colors.grey[300],
+                          ),
                           const SizedBox(height: 10),
                           Text(
                             'لا توجد تعليقات بعد، كن أول من يعلق!',
-                            style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
                           ),
                         ],
                       ),
@@ -209,14 +227,20 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CircleAvatar(
-                              backgroundImage: comment.userProfile.isNotEmpty 
-                                  ? NetworkImage(comment.userProfile) 
-                                  : null,
+                              backgroundImage:
+                                  comment.userProfile.isNotEmpty
+                                      ? NetworkImage(comment.userProfile)
+                                      : null,
                               backgroundColor: Colors.grey[300],
                               radius: 18,
-                              child: comment.userProfile.isEmpty 
-                                  ? const Icon(Icons.person, color: Colors.white, size: 20) 
-                                  : null,
+                              child:
+                                  comment.userProfile.isEmpty
+                                      ? const Icon(
+                                        Icons.person,
+                                        color: Colors.white,
+                                        size: 20,
+                                      )
+                                      : null,
                             ),
                             const SizedBox(width: 10),
                             Expanded(
@@ -225,21 +249,30 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                                 decoration: BoxDecoration(
                                   color: Theme.of(context).cardColor,
                                   borderRadius: BorderRadius.circular(15),
-                                  border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                                  border: Border.all(
+                                    color: Colors.grey.withValues(alpha: 0.2),
+                                  ),
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
                                           comment.userName,
-                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12,
+                                          ),
                                         ),
                                         Text(
                                           comment.createdAt,
-                                          style: TextStyle(color: Colors.grey[500], fontSize: 10),
+                                          style: TextStyle(
+                                            color: Colors.grey[500],
+                                            fontSize: 10,
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -247,7 +280,10 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                                     Text(
                                       comment.commentText,
                                       style: TextStyle(
-                                        color: Theme.of(context).textTheme.bodyMedium?.color,
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).textTheme.bodyMedium?.color,
                                         fontSize: 13,
                                       ),
                                     ),
@@ -275,7 +311,7 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                 color: Theme.of(context).scaffoldBackgroundColor,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     offset: const Offset(0, -3),
                     blurRadius: 10,
                   ),
@@ -291,7 +327,10 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                       decoration: InputDecoration(
                         hintText: 'أضف تعليقاً...',
                         hintStyle: const TextStyle(fontSize: 14),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 15,
+                          vertical: 10,
+                        ),
                         filled: true,
                         fillColor: Theme.of(context).cardColor,
                         border: OutlineInputBorder(
@@ -305,19 +344,24 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                   CircleAvatar(
                     backgroundColor: const Color(0xFF27ae60),
                     radius: 22,
-                    child: _isSending
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
+                    child:
+                        _isSending
+                            ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                            : IconButton(
+                              icon: const Icon(
+                                Icons.send,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              onPressed: _sendComment,
                             ),
-                          )
-                        : IconButton(
-                            icon: const Icon(Icons.send, color: Colors.white, size: 20),
-                            onPressed: _sendComment,
-                          ),
                   ),
                 ],
               ),

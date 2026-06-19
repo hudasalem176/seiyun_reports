@@ -21,38 +21,32 @@ class MapFilterChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected
-              ? color.withOpacity(0.2)
-              : Theme.of(context).cardColor.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(20),
+          color: isSelected ? color : Colors.transparent,
+          borderRadius: BorderRadius.circular(30),
           border: Border.all(
-            color: isSelected ? color : Colors.transparent,
+            color: isSelected ? color : Colors.grey.withValues(alpha: 0.35),
             width: 1.5,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 18, color: isSelected ? color : Colors.grey),
-            const SizedBox(width: 8),
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected ? Colors.white : Colors.grey[600],
+            ),
+            const SizedBox(width: 6),
             Text(
               label,
               style: TextStyle(
                 fontSize: 13,
-                fontWeight: FontWeight.bold,
-                color: isSelected
-                    ? color
-                    : Theme.of(context).textTheme.bodyMedium?.color,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? Colors.white : Colors.grey[700],
               ),
             ),
           ],

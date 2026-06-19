@@ -36,10 +36,10 @@ class CustomBottomNavBar extends StatelessWidget {
               currentIndex == 1,
               () => onTap(1),
             ),
-            const SizedBox(width: 40), 
+            const SizedBox(width: 40),
             _navItem(
-              Icons.newspaper_outlined,
-              "nav.news".tr(),
+              Icons.assignment_outlined,
+              "nav.reports".tr(),
               currentIndex == 2,
               () => onTap(2),
             ),
@@ -63,7 +63,7 @@ class CustomBottomNavBar extends StatelessWidget {
   ) {
     return GestureDetector(
       onTap: onTap,
-      behavior: HitTestBehavior.opaque, 
+      behavior: HitTestBehavior.opaque,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

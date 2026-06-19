@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:seiyun_reports_app/core/network/api_service.dart';
 import 'package:seiyun_reports_app/screens/notifications/data/notification_database.dart';
 import 'package:seiyun_reports_app/screens/notifications/models/notification_model.dart';
@@ -26,12 +25,13 @@ class NotificationRepository {
     }
   }
 
-
   /// حفظ إشعار جديد في قاعدة البيانات المحلية
   Future<void> saveNotification(AppNotification notification) async {
     try {
       await NotificationDatabase.insertNotification(notification);
-    } catch (e) {}
+    } catch (e) {
+      // فشل الحفظ
+    }
   }
 
   /// جلب كل الإشعارات المحفوظة لـ مستخدم معين
@@ -47,13 +47,17 @@ class NotificationRepository {
   Future<void> markAllRead(String userId) async {
     try {
       await NotificationDatabase.markAllAsRead(userId);
-    } catch (e) {}
+    } catch (e) {
+      // تجاهل الخطأ
+    }
   }
 
   /// حذف كل الإشعارات لمستخدم معين
   Future<void> clearAll(String userId) async {
     try {
       await NotificationDatabase.deleteForUser(userId);
-    } catch (e) {}
+    } catch (e) {
+      // تجاهل الخطأ
+    }
   }
 }

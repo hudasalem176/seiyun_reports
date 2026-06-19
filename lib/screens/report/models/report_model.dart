@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 class ReportModel {
   final int id;
   final int citizenId;

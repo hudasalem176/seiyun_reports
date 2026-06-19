@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:seiyun_reports_app/core/di/app_providers.dart';
 import 'package:seiyun_reports_app/core/theme/app_theme.dart';
-import 'package:seiyun_reports_app/screens/auth/view/auth_screen.dart';
 import 'package:seiyun_reports_app/screens/profile/viewmodel/profile_viewmodel.dart';
-import 'package:seiyun_reports_app/screens/root/view/root_screen.dart';
 import 'package:seiyun_reports_app/screens/splash/view/splash_screen.dart';
 import 'firebase_options.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -56,8 +52,9 @@ class MyApp extends StatelessWidget {
           darkTheme: AppTheme.darkTheme,
           themeMode:
               profileViewModel.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          home: const SplashScreen(),
+          initialRoute: '/',
           routes: {
+            '/': (context) => const SplashScreen(),
             '/notifications': (context) => const NotificationsScreen(),
           },
         );

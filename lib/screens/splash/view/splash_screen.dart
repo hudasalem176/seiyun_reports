@@ -15,7 +15,8 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
@@ -35,10 +36,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     );
 
     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.elasticOut,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
     );
 
     _animationController.forward();
@@ -53,8 +51,13 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       if (user != null) {
         await Future.wait([
           context.read<HomeViewModel>().refreshData().catchError((e) => null),
-          context.read<ProfileViewModel>().fetchProfile().catchError((e) => null),
-          context.read<NotificationViewModel>().loadNotificationsForUser(user.uid).catchError((e) => null),
+          context.read<ProfileViewModel>().fetchProfile().catchError(
+            (e) => null,
+          ),
+          context
+              .read<NotificationViewModel>()
+              .loadNotificationsForUser(user.uid)
+              .catchError((e) => null),
         ]);
       }
     } catch (e) {
@@ -72,8 +75,9 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       final user = FirebaseAuth.instance.currentUser;
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) =>
-          user != null ? const RootScreen() : const AuthScreen(),
+          pageBuilder:
+              (context, animation, secondaryAnimation) =>
+                  user != null ? const RootScreen() : const AuthScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },
@@ -93,9 +97,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppTheme.headerGradient,
-        ),
+        decoration: const BoxDecoration(gradient: AppTheme.headerGradient),
         child: Stack(
           children: [
             Center(
@@ -110,7 +112,9 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       Container(
                         width: 180, // تم تكبيرها من 150 إلى 180
                         height: 180, // تم تكبيرها من 150 إلى 180
-                        padding: const EdgeInsets.all(10), // تم تقليله من 15 إلى 10 ليتسع اللوغو بالكامل
+                        padding: const EdgeInsets.all(
+                          10,
+                        ), // تم تقليله من 15 إلى 10 ليتسع اللوغو بالكامل
                         decoration: BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
@@ -128,7 +132,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                           errorBuilder: (context, error, stackTrace) {
                             return const Icon(
                               Icons.assignment_turned_in,
-                              size: 100, // تم تكبير الأيقونة البديلة لتتناسب مع المقاس الجديد
+                              size:
+                                  100, // تم تكبير الأيقونة البديلة لتتناسب مع المقاس الجديد
                               color: AppTheme.primaryColor,
                             );
                           },

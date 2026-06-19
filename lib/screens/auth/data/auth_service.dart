@@ -10,12 +10,14 @@ class AuthService {
   Future<Response> login({
     required String role,
     String? name,
+    String? email,
   }) async {
     return await _apiService.post(
       '/login',
-      data: { 
-        'role': role, 
+      data: {
+        'role': role,
         if (name != null) 'name': name,
+        if (email != null) 'email': email,
       },
     );
   }

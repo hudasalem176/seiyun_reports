@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -22,9 +21,7 @@ class NotificationService {
   static Stream<AppNotification> get onNotificationSaved =>
       _notificationController.stream;
 
-  static const Color _brandColor = Color(
-    0xFF2E7D32,
-  ); 
+  static const Color _brandColor = Color(0xFF2E7D32);
 
   static const _statusChannel = AndroidNotificationChannel(
     'report_status_channel',
@@ -66,8 +63,7 @@ class NotificationService {
       badge: true,
       sound: true,
     );
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-    }
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {}
 
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
@@ -79,8 +75,7 @@ class NotificationService {
 
     await _localNotifications.initialize(
       initSettings,
-      onDidReceiveNotificationResponse: (details) {
-      },
+      onDidReceiveNotificationResponse: (details) {},
     );
 
     final androidPlugin =
@@ -112,7 +107,6 @@ class NotificationService {
 
   /// معالجة الحدث عند نقر المستخدم على الإشعار بالانتقال إلى شاشة الإشعارات
   static void _handleNotificationClick(RemoteMessage message) {
-
     final context = MyApp.navigatorKey.currentContext;
     if (context != null) {
       Navigator.of(context).pushNamed('/notifications');
@@ -135,12 +129,7 @@ class NotificationService {
           color: _brandColor,
         ),
       );
-      await _localNotifications.show(
-        message.hashCode,
-        title,
-        body,
-        details,
-      );
+      await _localNotifications.show(message.hashCode, title, body, details);
 
       final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
@@ -154,9 +143,7 @@ class NotificationService {
       try {
         await NotificationDatabase.insertNotification(notification);
         _notificationController.add(notification);
-      } catch (e) {
-        debugPrint('Foreground notification save error: $e');
-      }
+      } catch (e) {}
     }
   }
 
@@ -212,7 +199,7 @@ class NotificationService {
         importance: Importance.max,
         priority: Priority.max,
         icon: '@mipmap/ic_launcher',
-        color: Colors.orange, 
+        color: Colors.orange,
         enableVibration: true,
         styleInformation: BigTextStyleInformation(
           'موعد رفع النفايات $when ($date)\n⏱ من الساعة $startTime حتى $endTime\n المناطق المشمولة: $locText',
@@ -291,8 +278,6 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
           userId: '',
         ),
       );
-    } catch (e) {
-      debugPrint('Background notification save error: $e');
-    }
+    } catch (e) {}
   }
 }

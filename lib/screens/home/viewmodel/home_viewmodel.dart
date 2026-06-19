@@ -29,7 +29,7 @@ class HomeViewModel extends ChangeNotifier {
   /// تغيير الصفحة الحالية في واجهة المستخدم وتحديث الموقع
   void setPage(int index) {
     _currentIndex = index;
-    _fetchLocation(); 
+    _fetchLocation();
     notifyListeners();
   }
 
@@ -48,11 +48,14 @@ class HomeViewModel extends ChangeNotifier {
     _fetchHomeData();
     _startAutoRefresh();
     FirebaseAuth.instance.userChanges().listen((User? user) {
-      _currentUser = user;
-      if (user != null) {
-        _fetchHomeData();
-      }
-      notifyListeners();
+      // Use Future.microtask to avoid notifyListeners() during widget build
+      Future.microtask(() {
+        _currentUser = user;
+        if (user != null) {
+          _fetchHomeData();
+        }
+        notifyListeners();
+      });
     });
   }
 
@@ -103,8 +106,7 @@ class HomeViewModel extends ChangeNotifier {
         }
         notifyListeners();
       }
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   @override
