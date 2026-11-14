@@ -8,8 +8,7 @@ import 'package:seiyun_reports_app/screens/map/view/map_screen.dart';
 class NearbyContainerCard extends StatelessWidget {
   final PickupScheduleModel container;
 
-  const NearbyContainerCard({Key? key, required this.container})
-    : super(key: key);
+  const NearbyContainerCard({super.key, required this.container});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +24,7 @@ class NearbyContainerCard extends StatelessWidget {
           border: Border.all(color: Theme.of(context).dividerColor),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withValues(alpha: 0.02),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -36,7 +35,7 @@ class NearbyContainerCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: _getStatusColor(container.status).withOpacity(0.1),
+                color: _getStatusColor(container.status).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(
@@ -162,7 +161,7 @@ class NearbyContainerCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: _getStatusColor(
                           container.status,
-                        ).withOpacity(0.1),
+                        ).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Icon(

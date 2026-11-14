@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 class CitizenReportsHeader extends StatelessWidget {
   final Function(String) onSearch;
 
-  const CitizenReportsHeader({Key? key, required this.onSearch})
-    : super(key: key);
+  const CitizenReportsHeader({super.key, required this.onSearch});
 
   @override
   Widget build(BuildContext context) {

@@ -10,9 +10,11 @@ class PickupTipsCard extends StatelessWidget {
       margin: const EdgeInsets.all(20),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF9C4).withOpacity(0.3),
+        color: const Color(0xFFFFF9C4).withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFFBC02D).withOpacity(0.4)),
+        border: Border.all(
+          color: const Color(0xFFFBC02D).withValues(alpha: 0.4),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

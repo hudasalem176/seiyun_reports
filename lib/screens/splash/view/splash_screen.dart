@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:seiyun_reports_app/core/auth/session_manager.dart';
 import 'package:seiyun_reports_app/core/theme/app_theme.dart';
 import 'package:seiyun_reports_app/screens/auth/view/auth_screen.dart';
+import 'package:seiyun_reports_app/screens/auth/view/email_verification_screen.dart';
 import 'package:seiyun_reports_app/screens/home/viewmodel/home_viewmodel.dart';
 import 'package:seiyun_reports_app/screens/notifications/viewmodel/notification_viewmodel.dart';
 import 'package:seiyun_reports_app/screens/profile/viewmodel/profile_viewmodel.dart';
@@ -46,9 +48,20 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> _loadDataAndNavigate() async {
     final startTime = DateTime.now();
 
+    // تحديد الوجهة حسب حالة الجلسة: غير مسجل / بانتظار تفعيل البريد / مسجل بالكامل.
+    Widget destination = const AuthScreen();
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
+      var user = FirebaseAuth.instance.currentUser;
+      if (user != null && !await SessionManager.validateRemoteSession()) {
+        // الحساب حُذف أو عُطّل أو أُلغيت جلسته (مثلاً بعد تغيير كلمة المرور).
+        await SessionManager.logout();
+      }
+      user = FirebaseAuth.instance.currentUser;
+      if (user != null && !SessionManager.isVerified(user)) {
+        destination = const EmailVerificationScreen();
+      } else if (user != null) {
+        destination = const RootScreen();
+        if (!mounted) return;
         await Future.wait([
           context.read<HomeViewModel>().refreshData().catchError((e) => null),
           context.read<ProfileViewModel>().fetchProfile().catchError(
@@ -72,12 +85,10 @@ class _SplashScreenState extends State<SplashScreen>
     }
 
     if (mounted) {
-      final user = FirebaseAuth.instance.currentUser;
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
           pageBuilder:
-              (context, animation, secondaryAnimation) =>
-                  user != null ? const RootScreen() : const AuthScreen(),
+              (context, animation, secondaryAnimation) => destination,
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },
@@ -120,7 +131,7 @@ class _SplashScreenState extends State<SplashScreen>
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.15),
+                              color: Colors.black.withValues(alpha: 0.15),
                               blurRadius: 20,
                               offset: const Offset(0, 10),
                             ),
@@ -151,9 +162,9 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        "بوابة المواطن والمشرف للخدمات البلدية",
+                        "معاً لتصبح مدينة سيئون مكان اجمل",
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                           fontSize: 14,
                         ),
                       ),
@@ -180,7 +191,7 @@ class _SplashScreenState extends State<SplashScreen>
                   Text(
                     "جاري تهيئة التطبيق وتحميل البيانات...",
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       fontSize: 12,
                     ),
                   ),

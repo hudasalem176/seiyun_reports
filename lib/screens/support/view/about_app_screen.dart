@@ -112,6 +112,17 @@ class AboutAppScreen extends StatelessWidget {
                           "الارتقاء بمستوى الخدمات العامة في المدينة من خلال التحول الرقمي، وإشراك المجتمع بشكل فعال وسريع في رصد وتحسين المظهر الحضاري لمدينة سيئون.",
                     ),
 
+                    const SizedBox(height: 16),
+
+                    _buildSectionCard(
+                      context,
+                      icon: Icons.people_outline,
+                      iconColor: Colors.blue[700]!,
+                      title: "القائمون على التطبيق",
+                      content:
+                          "تم تطوير وإدارة هذه المنصة بواسطة فريق تقني متخصص تابع لصندوق النظافة والتحسين في مدينة سيئون - حضرموت الوادي والصحراء، لضمان استجابة سريعة وفعالة لبلاغاتكم.",
+                    ),
+
                     const SizedBox(height: 40),
 
                     Text(

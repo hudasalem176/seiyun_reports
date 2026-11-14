@@ -10,12 +10,12 @@ class CitizenReportCard extends StatefulWidget {
   final VoidCallback onLike;
 
   const CitizenReportCard({
-    Key? key,
+    super.key,
     required this.report,
     required this.onComment,
     required this.onShare,
     required this.onLike,
-  }) : super(key: key);
+  });
 
   @override
   State<CitizenReportCard> createState() => _CitizenReportCardState();
@@ -66,7 +66,7 @@ class _CitizenReportCardState extends State<CitizenReportCard>
             child: Row(
               children: [
                 CachedNetworkImage(
-                  imageUrl: report.user_profile,
+                  imageUrl: report.userProfile,
                   imageBuilder:
                       (context, imageProvider) => CircleAvatar(
                         backgroundImage: imageProvider,
@@ -84,14 +84,14 @@ class _CitizenReportCardState extends State<CitizenReportCard>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        report.user_name,
+                        report.userName,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
                       ),
                       Text(
-                        report.created_at,
+                        report.createdAt,
                         style: TextStyle(color: Colors.grey[600], fontSize: 12),
                       ),
                     ],
@@ -128,7 +128,7 @@ class _CitizenReportCardState extends State<CitizenReportCard>
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(0)),
             child: CachedNetworkImage(
-              imageUrl: report.report_image,
+              imageUrl: report.reportImage,
               height: 200,
               width: double.infinity,
               fit: BoxFit.cover,

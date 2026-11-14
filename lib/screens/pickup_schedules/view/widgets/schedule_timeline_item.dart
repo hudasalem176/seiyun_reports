@@ -5,8 +5,7 @@ import 'package:seiyun_reports_app/core/theme/app_theme.dart';
 class ScheduleTimelineItem extends StatelessWidget {
   final PickupScheduleModel schedule;
 
-  const ScheduleTimelineItem({Key? key, required this.schedule})
-    : super(key: key);
+  const ScheduleTimelineItem({super.key, required this.schedule});
 
   @override
   Widget build(BuildContext context) {
@@ -20,15 +19,15 @@ class ScheduleTimelineItem extends StatelessWidget {
         color:
             isHighlight
                 ? (isDark
-                    ? AppTheme.primaryGreen.withOpacity(0.15)
+                    ? AppTheme.primaryGreen.withValues(alpha: 0.15)
                     : const Color(0xFFF1F8E9))
                 : Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color:
               isHighlight
-                  ? AppTheme.primaryGreen.withOpacity(0.5)
-                  : Theme.of(context).dividerColor.withOpacity(0.1),
+                  ? AppTheme.primaryGreen.withValues(alpha: 0.5)
+                  : Theme.of(context).dividerColor.withValues(alpha: 0.1),
           width: 1.5,
         ),
         boxShadow:
@@ -36,7 +35,7 @@ class ScheduleTimelineItem extends StatelessWidget {
                 ? []
                 : [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: Colors.black.withValues(alpha: 0.03),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),

@@ -20,7 +20,9 @@ class ImagePickerWidget extends StatelessWidget {
                 leading: const Icon(Icons.photo_library),
                 title: const Text('المعرض (Gallery)'),
                 onTap: () {
-                  context.read<ReportViewModel>().pickImage(ImageSource.gallery);
+                  context.read<ReportViewModel>().pickImage(
+                    ImageSource.gallery,
+                  );
                   Navigator.of(context).pop();
                 },
               ),
@@ -43,15 +45,41 @@ class ImagePickerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final reportVM = context.watch<ReportViewModel>();
 
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildPicker(context, reportVM),
+        if (reportVM.imageError != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              reportVM.imageError!,
+              style: const TextStyle(color: Colors.red, fontSize: 12),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildPicker(BuildContext context, ReportViewModel reportVM) {
     return GestureDetector(
       onTap: () => _showPickerOptions(context),
       child: Container(
         width: double.infinity,
-        height: 200, 
+        height: 200,
         decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : const Color(0xFFf8fafc),
+          color:
+              Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF1E293B)
+                  : const Color(0xFFf8fafc),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF334155) : const Color(0xFFcbd5e1), width: 2),
+          border: Border.all(
+            color:
+                Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF334155)
+                    : const Color(0xFFcbd5e1),
+            width: 2,
+          ),
           image:
               reportVM.image != null
                   ? DecorationImage(
@@ -83,7 +111,7 @@ class ImagePickerWidget extends StatelessWidget {
                       top: 10,
                       right: 10,
                       child: CircleAvatar(
-                        backgroundColor: Colors.red.withOpacity(0.8),
+                        backgroundColor: Colors.red.withValues(alpha: 0.8),
                         child: IconButton(
                           icon: const Icon(Icons.close, color: Colors.white),
                           onPressed:

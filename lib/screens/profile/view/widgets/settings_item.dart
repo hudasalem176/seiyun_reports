@@ -24,11 +24,11 @@ class SettingsItem extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor, 
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -46,10 +46,16 @@ class SettingsItem extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: (iconColor ?? AppTheme.primaryColor).withOpacity(0.08),
+                    color: (iconColor ?? AppTheme.primaryColor).withValues(
+                      alpha: 0.08,
+                    ),
                     borderRadius: BorderRadius.circular(15),
                   ),
-                  child: Icon(icon, color: iconColor ?? AppTheme.primaryColor, size: 22),
+                  child: Icon(
+                    icon,
+                    color: iconColor ?? AppTheme.primaryColor,
+                    size: 22,
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(

@@ -1,3 +1,5 @@
+import 'package:seiyun_reports_app/core/models/report_status.dart';
+
 class ReportModel {
   final int id;
   final int citizenId;
@@ -13,6 +15,11 @@ class ReportModel {
   final String lng;
   final String createdAt;
 
+  /// سبب الرفض كما ترسله الإدارة (اختياري).
+  final String? rejectionReason;
+
+  ReportStatus get statusStage => ReportStatus.fromServer(status);
+
   ReportModel({
     required this.id,
     required this.citizenId,
@@ -27,6 +34,7 @@ class ReportModel {
     required this.lat,
     required this.lng,
     required this.createdAt,
+    this.rejectionReason,
   });
   factory ReportModel.fromJson(Map<String, dynamic> json) {
     try {
@@ -48,18 +56,20 @@ class ReportModel {
             json['image'] != null && json['image'].toString().isNotEmpty
                 ? json['image'].toString()
                 : "https://via.placeholder.com/150",
-        status: json['status']?.toString() ?? 'قيد الإنتظار',
+        status: json['status']?.toString() ?? ReportStatus.pendingLabel,
         reportType: (json['report_type'] ?? json['type'] ?? 'رفع').toString(),
         lat: json['lat']?.toString() ?? '0.0',
         lng: json['lng']?.toString() ?? '0.0',
         createdAt: json['created_at']?.toString() ?? '',
+        rejectionReason:
+            (json['rejection_reason'] ?? json['reject_reason'])?.toString(),
       );
     } catch (e) {
       return ReportModel(
         id: 0,
         citizenId: 0,
         title: "خطأ في قراءة البيانات",
-        description: "JSON content: $json",
+        description: "",
         image: "",
         status: "Error",
         reportType: "",
@@ -96,6 +106,7 @@ class ReportModel {
       'lat': lat,
       'lng': lng,
       'created_at': createdAt,
+      'rejection_reason': rejectionReason,
     };
   }
 
@@ -109,11 +120,12 @@ class ReportModel {
       squareName: map['square_name'],
       description: map['description'] ?? '',
       image: map['image'] ?? '',
-      status: map['status'] ?? 'قيد الإنتظار',
+      status: map['status'] ?? ReportStatus.pendingLabel,
       reportType: map['report_type'] ?? 'رفع',
       lat: map['lat'] ?? '0.0',
       lng: map['lng'] ?? '0.0',
       createdAt: map['created_at'] ?? '',
+      rejectionReason: map['rejection_reason']?.toString(),
     );
   }
 }

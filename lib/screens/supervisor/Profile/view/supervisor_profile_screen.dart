@@ -1,23 +1,23 @@
+import 'package:seiyun_reports_app/core/auth/session_manager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:seiyun_reports_app/core/theme/app_theme.dart';
 import 'package:seiyun_reports_app/core/utils/pref_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:seiyun_reports_app/screens/auth/view/auth_screen.dart';
 import 'package:seiyun_reports_app/screens/supervisor/TasksScreen/viewmodel/supervisor_tasks_viewmodel.dart';
 
 class SupervisorProfileScreen extends StatefulWidget {
-  const SupervisorProfileScreen({Key? key}) : super(key: key);
+  const SupervisorProfileScreen({super.key});
 
   @override
-  State<SupervisorProfileScreen> createState() => _SupervisorProfileScreenState();
+  State<SupervisorProfileScreen> createState() =>
+      _SupervisorProfileScreenState();
 }
 
 class _SupervisorProfileScreenState extends State<SupervisorProfileScreen> {
   String? _userName;
-  String? _userRole;
   String? _userEmail;
   String? _qrData;
 
@@ -31,24 +31,24 @@ class _SupervisorProfileScreenState extends State<SupervisorProfileScreen> {
 
   /// يحمل بيانات الملف الشخصي للمشرف الميداني من التخزين المحلي.
   Future<void> _loadProfileData() async {
-    final name = await PrefHelper.getUserName() ?? FirebaseAuth.instance.currentUser?.displayName ?? "مشرف ميداني";
-    final role = await PrefHelper.getRole();
+    final name =
+        await PrefHelper.getUserName() ??
+        FirebaseAuth.instance.currentUser?.displayName ??
+        "مشرف ميداني";
     final email = await PrefHelper.getUserEmail();
 
     if (mounted) {
       setState(() {
         _userName = name;
-        _userRole = role;
         _userEmail = email;
-        _qrData = name; 
+        _qrData = name;
       });
     }
   }
 
   /// يسجل خروج المستخدم من الحساب ويقوم بتوجيهه إلى شاشة تسجيل الدخول.
   Future<void> _logout() async {
-    await FirebaseAuth.instance.signOut();
-    await PrefHelper.clear();
+    await SessionManager.logout();
     if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const AuthScreen()),
@@ -128,7 +128,11 @@ class _SupervisorProfileScreenState extends State<SupervisorProfileScreen> {
                 child: const CircleAvatar(
                   radius: 55,
                   backgroundColor: Color(0xFFE8F5E9),
-                  child: Icon(CupertinoIcons.person_fill, size: 60, color: Color(0xFF2E7D32)),
+                  child: Icon(
+                    CupertinoIcons.person_fill,
+                    size: 60,
+                    color: Color(0xFF2E7D32),
+                  ),
                 ),
               ),
               Positioned(
@@ -160,7 +164,7 @@ class _SupervisorProfileScreenState extends State<SupervisorProfileScreen> {
               _userEmail!,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
               ),
             ),
           ],
@@ -216,7 +220,13 @@ class _SupervisorProfileScreenState extends State<SupervisorProfileScreen> {
   }
 
   /// يبني بطاقة عرض إحصائية واحدة بناءً على القيم الممررة.
-  Widget _buildStatCard(String label, String value, IconData icon, Color color, bool isDark) {
+  Widget _buildStatCard(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+    bool isDark,
+  ) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(20),
@@ -271,26 +281,27 @@ class _SupervisorProfileScreenState extends State<SupervisorProfileScreen> {
           ),
         ],
       ),
-      child: _qrData != null
-          ? QrImageView(
-              data: _qrData!,
-              version: QrVersions.auto,
-              size: 180.0,
-              gapless: false,
-              eyeStyle: const QrEyeStyle(
-                eyeShape: QrEyeShape.square,
-                color: Color(0xFF1B5E20),
+      child:
+          _qrData != null
+              ? QrImageView(
+                data: _qrData!,
+                version: QrVersions.auto,
+                size: 180.0,
+                gapless: false,
+                eyeStyle: const QrEyeStyle(
+                  eyeShape: QrEyeShape.square,
+                  color: Color(0xFF1B5E20),
+                ),
+                dataModuleStyle: const QrDataModuleStyle(
+                  dataModuleShape: QrDataModuleShape.square,
+                  color: Colors.black,
+                ),
+              )
+              : const SizedBox(
+                height: 180,
+                width: 180,
+                child: Center(child: CircularProgressIndicator()),
               ),
-              dataModuleStyle: const QrDataModuleStyle(
-                dataModuleShape: QrDataModuleShape.square,
-                color: Colors.black,
-              ),
-            )
-          : const SizedBox(
-              height: 180,
-              width: 180,
-              child: Center(child: CircularProgressIndicator()),
-            ),
     );
   }
 
@@ -302,27 +313,36 @@ class _SupervisorProfileScreenState extends State<SupervisorProfileScreen> {
         onPressed: () {
           showDialog(
             context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('تسجيل الخروج'),
-              content: const Text('هل أنت متأكد أنك تريد تسجيل الخروج من حساب المشرف؟'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('إلغاء'),
+            builder:
+                (context) => AlertDialog(
+                  title: const Text('تسجيل الخروج'),
+                  content: const Text(
+                    'هل أنت متأكد أنك تريد تسجيل الخروج من حساب المشرف؟',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('إلغاء'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _logout();
+                      },
+                      child: const Text(
+                        'تسجيل خروج',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
                 ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _logout();
-                  },
-                  child: const Text('تسجيل خروج', style: TextStyle(color: Colors.red)),
-                ),
-              ],
-            ),
           );
         },
         icon: const Icon(CupertinoIcons.power, color: Colors.red),
-        label: const Text('تسجيل الخروج', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+        label: const Text(
+          'تسجيل الخروج',
+          style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+        ),
         style: TextButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 15),
         ),

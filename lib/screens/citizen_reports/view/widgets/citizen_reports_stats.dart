@@ -7,12 +7,12 @@ class CitizenReportsStats extends StatelessWidget {
   final String rate;
 
   const CitizenReportsStats({
-    Key? key,
+    super.key,
     required this.total,
     required this.resolved,
     required this.active,
     required this.rate,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

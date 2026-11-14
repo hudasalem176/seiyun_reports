@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:seiyun_reports_app/core/network/api_service.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../data/service_request_repository.dart';
 import '../viewmodel/services_viewmodel.dart';
 import '../model/service_model.dart';
 import 'package:intl/intl.dart' as intl;
@@ -10,7 +13,10 @@ class ServicesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => ServicesViewModel(),
+      create:
+          (context) => ServicesViewModel(
+            repository: ServiceRequestRepository(context.read<ApiService>()),
+          ),
       child: const _ServicesScreenContent(),
     );
   }
@@ -98,6 +104,11 @@ class _ServicesScreenContent extends StatelessWidget {
                     _NotesField(vm: vm),
                     const SizedBox(height: 30),
                     _OrderSummary(vm: vm),
+                    const SizedBox(height: 10),
+                    Text(
+                      ServicesViewModel.priceDisclaimer,
+                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600, height: 1.5),
+                    ),
                     const SizedBox(height: 30),
                     const _SubmitButton(),
                     const SizedBox(height: 40),
@@ -610,22 +621,116 @@ class _OrderSummary extends StatelessWidget {
 class _SubmitButton extends StatelessWidget {
   const _SubmitButton();
 
+  static const String _supportEmail = 'projectg25ar@gmail.com';
+
+  Future<void> _submit(BuildContext context) async {
+    final vm = Provider.of<ServicesViewModel>(context, listen: false);
+    final messenger = ScaffoldMessenger.of(context);
+    FocusScope.of(context).unfocus();
+    final result = await vm.submitOrder();
+    if (!context.mounted) return;
+
+    switch (result.status) {
+      case ServiceSubmitStatus.accepted:
+        messenger.showSnackBar(
+          SnackBar(
+            backgroundColor: const Color(0xFF2ECC71),
+            content: Text(
+              result.referenceNumber != null
+                  ? 'تم استلام طلبك برقم ${result.referenceNumber}، وسيتواصل معك الصندوق لتأكيد التكلفة والموعد'
+                  : 'تم استلام طلبك، وسيتواصل معك الصندوق لتأكيد التكلفة والموعد',
+            ),
+          ),
+        );
+        break;
+      case ServiceSubmitStatus.notAvailable:
+        // لا نعرض نجاحاً وهمياً: نوضح للمستخدم ونعرض قناة تواصل حقيقية.
+        final request = await vm.buildRequest();
+        if (!context.mounted) return;
+        await showDialog<void>(
+          context: context,
+          builder:
+              (ctx) => AlertDialog(
+                title: const Text('الطلب الإلكتروني غير مفعّل بعد'),
+                content: const Text(
+                  'لم يتم تفعيل استقبال طلبات الخدمات إلكترونياً على خادم الصندوق حتى الآن، '
+                  'ولم يُرسل طلبك. يمكنك إرسال تفاصيل الطلب إلى الصندوق عبر البريد الإلكتروني.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text('إغلاق'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      Navigator.pop(ctx);
+                      final uri = Uri(
+                        scheme: 'mailto',
+                        path: _supportEmail,
+                        query: _encodeQuery({
+                          'subject': 'طلب خدمة - ${request.serviceTitle}',
+                          'body': request.toPlainText(),
+                        }),
+                      );
+                      final ok = await launchUrl(
+                        uri,
+                        mode: LaunchMode.externalApplication,
+                      );
+                      if (!ok) {
+                        messenger.showSnackBar(
+                          const SnackBar(
+                            content: Text('لا يوجد تطبيق بريد على الجهاز'),
+                          ),
+                        );
+                      }
+                    },
+                    child: const Text('إرسال عبر البريد'),
+                  ),
+                ],
+              ),
+        );
+        break;
+      case ServiceSubmitStatus.failed:
+        messenger.showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red.shade700,
+            content: Text(result.message ?? 'تعذر إرسال الطلب، حاول مجدداً'),
+          ),
+        );
+        break;
+    }
+  }
+
+  static String _encodeQuery(Map<String, String> params) => params.entries
+      .map(
+        (e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+      )
+      .join('&');
+
   @override
   Widget build(BuildContext context) {
+    final isSubmitting = context.select<ServicesViewModel, bool>(
+      (vm) => vm.isSubmitting,
+    );
     return SizedBox(
       width: double.infinity,
       height: 60,
       child: ElevatedButton.icon(
-        onPressed: () {
-          final vm = Provider.of<ServicesViewModel>(context, listen: false);
-          vm.submitOrder();
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text("تم ارسال طلبك بنجاح")));
-        },
-        icon: const Icon(Icons.send, size: 20),
-        label: const Text(
-          "ارسال الطلب",
+        // تعطيل الزر أثناء الإرسال يمنع تكرار الطلب.
+        onPressed: isSubmitting ? null : () => _submit(context),
+        icon:
+            isSubmitting
+                ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+                : const Icon(Icons.send, size: 20),
+        label: Text(
+          isSubmitting ? "جارٍ الإرسال..." : "ارسال الطلب",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         style: ElevatedButton.styleFrom(

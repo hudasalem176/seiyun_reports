@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:seiyun_reports_app/screens/report/viewmodel/report_viewmodel.dart';
 import 'package:seiyun_reports_app/screens/profile/viewmodel/profile_viewmodel.dart';
 import 'package:seiyun_reports_app/screens/home/viewmodel/home_viewmodel.dart';
+import 'package:seiyun_reports_app/screens/citizen_reports/viewmodel/citizen_reports_viewmodel.dart';
 import 'package:seiyun_reports_app/screens/report/view/widgets/report_header.dart';
 import 'package:seiyun_reports_app/screens/report/view/widgets/category_grid.dart';
 import 'package:seiyun_reports_app/screens/report/view/widgets/priority_selector.dart';
@@ -118,7 +119,7 @@ class _ReportScreenState extends State<ReportScreen> {
   Widget _buildVerificationWarning(BuildContext context, HomeViewModel homeVM) {
     return GestureDetector(
       onTap: () {
-        homeVM.setPage(3); 
+        homeVM.setPage(3);
         Navigator.pop(context);
       },
       child: Container(
@@ -130,7 +131,7 @@ class _ReportScreenState extends State<ReportScreen> {
           border: Border.all(color: Colors.orange.shade200, width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.orange.withOpacity(0.1),
+              color: Colors.orange.withValues(alpha: 0.1),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -203,6 +204,110 @@ class _ReportScreenState extends State<ReportScreen> {
     );
   }
 
+  Future<void> _submitReport(
+    BuildContext context,
+    ReportViewModel reportVM,
+    HomeViewModel homeVM, {
+    bool ignoreDuplicate = false,
+  }) async {
+    final status = await reportVM.sendNewReport(
+      _descriptionController.text.trim(),
+      customTitle:
+          reportVM.selectedCategory == 'أخرى'
+              ? _titleController.text.trim()
+              : null,
+      ignoreDuplicate: ignoreDuplicate,
+    );
+
+    if (!context.mounted) return;
+
+    if (status == ReportSubmissionStatus.missingLocation) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('يرجى تحديد موقع البلاغ أولاً (تلقائياً أو من الخريطة)'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    if (status == ReportSubmissionStatus.possibleDuplicate) {
+      final proceed = await showDialog<bool>(
+        context: context,
+        builder:
+            (ctx) => AlertDialog(
+              title: const Text('بلاغ مشابه موجود'),
+              content: const Text(
+                'لديك بلاغ من نفس النوع في نفس الموقع تقريباً خلال آخر 24 ساعة وما زال قيد المتابعة. '
+                'إرسال بلاغ مكرر لا يسرّع المعالجة. هل تريد إرساله على أي حال؟',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: const Text('إلغاء'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  child: const Text('إرسال'),
+                ),
+              ],
+            ),
+      );
+      if (proceed == true && context.mounted) {
+        await _submitReport(context, reportVM, homeVM, ignoreDuplicate: true);
+      }
+      return;
+    }
+
+    if (status == ReportSubmissionStatus.outsideServiceArea) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "عفواً، الموقع المحدد خارج نطاق الخدمة المسموح به (مدينة سيئون).",
+          ),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 4),
+        ),
+      );
+      return;
+    }
+
+    if (status == ReportSubmissionStatus.success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("تمت العملية بنجاح"),
+          backgroundColor: Colors.green,
+        ),
+      );
+      _titleController.clear();
+      _descriptionController.clear();
+      Navigator.pop(context);
+
+      // Update global dashboard
+      try {
+        Provider.of<CitizenReportsViewModel>(
+          context,
+          listen: false,
+        ).loadDashboardData();
+      } catch (e) {
+        // Minor error updating global dashboard
+      }
+    } else if (status == ReportSubmissionStatus.savedLocally) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "لا يوجد اتصال بالإنترنت حاليًا سيتم رفع البلاغ عند توفر الشبكة.",
+          ),
+          backgroundColor: Colors.blueGrey,
+          duration: Duration(seconds: 5),
+        ),
+      );
+      _titleController.clear();
+      _descriptionController.clear();
+      Navigator.pop(context);
+    }
+  }
+
   Widget _buildSubmitButton(BuildContext context) {
     final reportVM = context.watch<ReportViewModel>();
     final profileVM = context.read<ProfileViewModel>();
@@ -220,7 +325,7 @@ class _ReportScreenState extends State<ReportScreen> {
                       duration: const Duration(seconds: 3),
                     ),
                   );
-                  homeVM.setPage(3); 
+                  homeVM.setPage(3);
                   Navigator.pop(context);
                   return;
                 }
@@ -233,18 +338,11 @@ class _ReportScreenState extends State<ReportScreen> {
                   return;
                 }
 
-                reportVM.sendNewReport(
-                  context,
-                  _descriptionController.text.trim(),
-                  customTitle:
-                      reportVM.selectedCategory == 'أخرى'
-                          ? _titleController.text.trim()
-                          : null,
-                );
+                _submitReport(context, reportVM, homeVM);
               },
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFF27ae60),
-        disabledBackgroundColor: const Color(0xFF27ae60).withOpacity(0.6),
+        disabledBackgroundColor: const Color(0xFF27ae60).withValues(alpha: 0.6),
         minimumSize: const Size(double.infinity, 65),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),

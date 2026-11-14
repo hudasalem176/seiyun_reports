@@ -59,6 +59,8 @@ class NewsRepository {
 
         await UpdateHelper.saveLastUpdate('news_tips_sync');
       }
-    } catch (e) {}
+    } catch (e) {
+      // Sync failed, locally cached data remains valid
+    }
   }
 }

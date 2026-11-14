@@ -10,6 +10,8 @@ class HomeViewModel extends ChangeNotifier {
   final HomeRepository _repository;
   final LocationService _locationService;
   Timer? _autoRefreshTimer;
+  StreamSubscription<User?>? _authSubscription;
+  bool _disposed = false;
 
   User? _currentUser;
   User? get currentUser => _currentUser;
@@ -47,9 +49,10 @@ class HomeViewModel extends ChangeNotifier {
     _fetchLocation();
     _fetchHomeData();
     _startAutoRefresh();
-    FirebaseAuth.instance.userChanges().listen((User? user) {
+    _authSubscription = FirebaseAuth.instance.userChanges().listen((User? user) {
       // Use Future.microtask to avoid notifyListeners() during widget build
       Future.microtask(() {
+        if (_disposed) return;
         _currentUser = user;
         if (user != null) {
           _fetchHomeData();
@@ -63,6 +66,10 @@ class HomeViewModel extends ChangeNotifier {
   void _startAutoRefresh() {
     _autoRefreshTimer?.cancel();
     _autoRefreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      // توفير البطارية والإنترنت: لا تحديث أثناء وجود التطبيق في الخلفية.
+      if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+        return;
+      }
       refreshData();
     });
   }
@@ -106,11 +113,15 @@ class HomeViewModel extends ChangeNotifier {
         }
         notifyListeners();
       }
-    } catch (e) {}
+    } catch (e) {
+      // Background data fetch failed, will retry or use cache
+    }
   }
 
   @override
   void dispose() {
+    _disposed = true;
+    _authSubscription?.cancel();
     _autoRefreshTimer?.cancel();
     super.dispose();
   }

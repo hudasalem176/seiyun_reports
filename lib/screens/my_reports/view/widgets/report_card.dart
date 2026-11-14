@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:seiyun_reports_app/core/models/report_status.dart';
+import 'package:seiyun_reports_app/core/widgets/report_status_tracker.dart';
 import 'package:seiyun_reports_app/screens/report/models/report_model.dart';
 
 class ReportCard extends StatelessWidget {
@@ -11,22 +13,11 @@ class ReportCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color statusColor;
-    switch (report.status) {
-      case 'قيد الإنتظار':
-      case 'قيد الانتظار':
-        statusColor = Colors.orange;
-        break;
-      case 'قيد المعالجة':
-        statusColor = Colors.blue;
-        break;
-      case 'تم الحل':
-      case 'تم الإنجاز':
-        statusColor = Colors.green;
-        break;
-      default:
-        statusColor = Colors.grey;
-    }
+    final stage = report.statusStage;
+    final Color statusColor =
+        stage == ReportStatus.unknown ? Colors.grey : stage.color;
+    final String statusLabel =
+        stage == ReportStatus.unknown ? report.status.tr() : stage.label;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
@@ -232,7 +223,7 @@ class ReportCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              report.status.tr(),
+                              statusLabel,
                               style: TextStyle(
                                 color: statusColor,
                                 fontSize: 11,
@@ -244,6 +235,13 @@ class ReportCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                  if (stage != ReportStatus.unknown) ...[
+                    const SizedBox(height: 14),
+                    ReportStatusTracker(
+                      status: stage,
+                      rejectionReason: report.rejectionReason,
+                    ),
+                  ],
                 ],
               ),
             ),

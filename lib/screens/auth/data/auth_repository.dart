@@ -24,6 +24,7 @@ class AuthRepository {
       role: role,
       name: name,
       email: email,
+      idToken: token,
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
@@ -53,7 +54,7 @@ class AuthRepository {
 
       return userModel;
     } else {
-      throw Exception('Server Error: ${response.data['message']}');
+      throw Exception('تعذر التحقق من حسابك لدى الخادم، حاول مجدداً');
     }
   }
 }

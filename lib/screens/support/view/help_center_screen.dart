@@ -44,7 +44,6 @@ class HelpCenterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -89,7 +88,7 @@ class HelpCenterScreen extends StatelessWidget {
                   _buildFAQItem(
                     context,
                     "من هم القائمون على التطبيق؟",
-                    "هذا التطبيق مبادرة لتحسين الخدمات في مدينة سيئون وتسهيل التواصل بين المواطنين وصندوق النظافة.",
+                    "هذا التطبيق هو منصة رسمية تم تطويرها وإدارتها بواسطة فريق تقني متخصص تابع لصندوق النظافة والتحسين في مدينة سيئون - حضرموت الوادي والصحراء، بهدف تحسين الخدمات وتسهيل التواصل مع المواطنين.",
                   ),
                   const SizedBox(height: 35),
 

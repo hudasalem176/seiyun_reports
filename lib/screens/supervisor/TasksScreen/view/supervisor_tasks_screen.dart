@@ -12,13 +12,14 @@ import 'package:seiyun_reports_app/screens/supervisor/TasksScreen/viewmodel/supe
 import 'package:seiyun_reports_app/screens/supervisor/TasksScreen/models/assignment_model.dart';
 
 class SupervisorTasksScreen extends StatefulWidget {
-  const SupervisorTasksScreen({Key? key}) : super(key: key);
+  const SupervisorTasksScreen({super.key});
 
   @override
   State<SupervisorTasksScreen> createState() => _SupervisorTasksScreenState();
 }
 
-class _SupervisorTasksScreenState extends State<SupervisorTasksScreen> with SingleTickerProviderStateMixin {
+class _SupervisorTasksScreenState extends State<SupervisorTasksScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -37,10 +38,14 @@ class _SupervisorTasksScreenState extends State<SupervisorTasksScreen> with Sing
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => MapZonesScreen(
-          initialLocation: LatLng(double.tryParse(task.lat) ?? 0.0, double.tryParse(task.lng) ?? 0.0),
-          initialTitle: task.title,
-        ),
+        builder:
+            (context) => MapZonesScreen(
+              initialLocation: LatLng(
+                double.tryParse(task.lat) ?? 0.0,
+                double.tryParse(task.lng) ?? 0.0,
+              ),
+              initialTitle: task.title,
+            ),
       ),
     );
   }
@@ -66,20 +71,33 @@ class _SupervisorTasksScreenState extends State<SupervisorTasksScreen> with Sing
             ],
           ),
         ),
-        body: viewModel.isLoading && viewModel.assignments.isEmpty
-            ? const Center(child: CircularProgressIndicator())
-            : TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildTaskList(tasks: viewModel.pendingTasks, isDark: isDark, viewModel: viewModel),
-                  _buildTaskList(tasks: viewModel.completedTasks, isDark: isDark, viewModel: viewModel),
-                ],
-              ),
+        body:
+            viewModel.isLoading && viewModel.assignments.isEmpty
+                ? const Center(child: CircularProgressIndicator())
+                : TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildTaskList(
+                      tasks: viewModel.pendingTasks,
+                      isDark: isDark,
+                      viewModel: viewModel,
+                    ),
+                    _buildTaskList(
+                      tasks: viewModel.completedTasks,
+                      isDark: isDark,
+                      viewModel: viewModel,
+                    ),
+                  ],
+                ),
       ),
     );
   }
 
-  Widget _buildTaskList({required List<AssignmentModel> tasks, required bool isDark, required SupervisorTasksViewModel viewModel}) {
+  Widget _buildTaskList({
+    required List<AssignmentModel> tasks,
+    required bool isDark,
+    required SupervisorTasksViewModel viewModel,
+  }) {
     if (tasks.isEmpty) {
       return RefreshIndicator(
         onRefresh: () => viewModel.fetchAssignments(),
@@ -90,9 +108,16 @@ class _SupervisorTasksScreenState extends State<SupervisorTasksScreen> with Sing
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(CupertinoIcons.doc_text_search, size: 60, color: Colors.grey.withOpacity(0.5)),
+                  Icon(
+                    CupertinoIcons.doc_text_search,
+                    size: 60,
+                    color: Colors.grey.withValues(alpha: 0.5),
+                  ),
                   const SizedBox(height: 15),
-                  const Text("لا توجد مهام حالياً", style: TextStyle(color: Colors.grey)),
+                  const Text(
+                    "لا توجد مهام حالياً",
+                    style: TextStyle(color: Colors.grey),
+                  ),
                 ],
               ),
             ),
@@ -108,10 +133,11 @@ class _SupervisorTasksScreenState extends State<SupervisorTasksScreen> with Sing
         itemCount: tasks.length,
         itemBuilder: (context, index) {
           final task = tasks[index];
-          final bool isCompleted = task.status == 'تم الحل' || 
-                                   task.status == 'solved' || 
-                                   task.status == 'مكتملة' ||
-                                   task.status == 'completed';
+          final bool isCompleted =
+              task.status == 'تم الحل' ||
+              task.status == 'solved' ||
+              task.status == 'مكتملة' ||
+              task.status == 'completed';
 
           return Card(
             elevation: 2,
@@ -119,7 +145,9 @@ class _SupervisorTasksScreenState extends State<SupervisorTasksScreen> with Sing
             margin: const EdgeInsets.only(bottom: 16.0),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
-              side: BorderSide(color: isDark ? Colors.grey.shade800 : Colors.grey.shade100),
+              side: BorderSide(
+                color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
+              ),
             ),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -130,14 +158,21 @@ class _SupervisorTasksScreenState extends State<SupervisorTasksScreen> with Sing
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.1),
+                          color: Colors.blue.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           task.reportType,
-                          style: const TextStyle(color: Colors.blue, fontSize: 12, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       _buildStatusBadge(isCompleted, task.status),
@@ -147,15 +182,26 @@ class _SupervisorTasksScreenState extends State<SupervisorTasksScreen> with Sing
 
                   Text(
                     task.title,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
-                  _buildIconRow(Icons.location_on_outlined, " ${task.area} ${task.square}", isDark),
+                  _buildIconRow(
+                    Icons.location_on_outlined,
+                    " ${task.area} ${task.square}",
+                    isDark,
+                  ),
                   const SizedBox(height: 6),
-             
+
                   Text(
                     task.description,
-                    style: TextStyle(color: Colors.grey.shade700, fontSize: 14, height: 1.5),
+                    style: TextStyle(
+                      color: Colors.grey.shade700,
+                      fontSize: 14,
+                      height: 1.5,
+                    ),
                   ),
                   const SizedBox(height: 16),
 
@@ -173,11 +219,15 @@ class _SupervisorTasksScreenState extends State<SupervisorTasksScreen> with Sing
                           height: 180,
                           width: double.infinity,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            height: 180,
-                            color: Colors.grey.shade200,
-                            child: const Icon(Icons.broken_image, color: Colors.grey),
-                          ),
+                          errorBuilder:
+                              (context, error, stackTrace) => Container(
+                                height: 180,
+                                color: Colors.grey.shade200,
+                                child: const Icon(
+                                  Icons.broken_image,
+                                  color: Colors.grey,
+                                ),
+                              ),
                         ),
                       ),
                     ],
@@ -186,7 +236,11 @@ class _SupervisorTasksScreenState extends State<SupervisorTasksScreen> with Sing
 
                   Row(
                     children: [
-                      const Icon(Icons.person_outline, size: 16, color: Colors.grey),
+                      const Icon(
+                        Icons.person_outline,
+                        size: 16,
+                        color: Colors.grey,
+                      ),
                       const SizedBox(width: 4),
                       const Text(
                         "المشرف:",
@@ -195,7 +249,10 @@ class _SupervisorTasksScreenState extends State<SupervisorTasksScreen> with Sing
                       const SizedBox(width: 8),
                       Text(
                         task.supervisorName,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                       ),
                     ],
                   ),
@@ -203,7 +260,11 @@ class _SupervisorTasksScreenState extends State<SupervisorTasksScreen> with Sing
 
                   Row(
                     children: [
-                      const Icon(Icons.calendar_today_outlined, size: 16, color: Colors.grey),
+                      const Icon(
+                        Icons.calendar_today_outlined,
+                        size: 16,
+                        color: Colors.grey,
+                      ),
                       const SizedBox(width: 4),
                       const Text(
                         "التاريخ:",
@@ -213,7 +274,10 @@ class _SupervisorTasksScreenState extends State<SupervisorTasksScreen> with Sing
                       Expanded(
                         child: Text(
                           _formatDate(task.assignedAt),
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -229,7 +293,9 @@ class _SupervisorTasksScreenState extends State<SupervisorTasksScreen> with Sing
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => SupervisorTaskDetailScreen(task: task),
+                              builder:
+                                  (context) =>
+                                      SupervisorTaskDetailScreen(task: task),
                             ),
                           );
                         },
@@ -240,7 +306,9 @@ class _SupervisorTasksScreenState extends State<SupervisorTasksScreen> with Sing
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           elevation: 0,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
                     ),
@@ -253,7 +321,11 @@ class _SupervisorTasksScreenState extends State<SupervisorTasksScreen> with Sing
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => SupervisorTaskCompletionDetailScreen(task: task),
+                              builder:
+                                  (context) =>
+                                      SupervisorTaskCompletionDetailScreen(
+                                        task: task,
+                                      ),
                             ),
                           );
                         },
@@ -264,7 +336,9 @@ class _SupervisorTasksScreenState extends State<SupervisorTasksScreen> with Sing
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           elevation: 0,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
                     ),
@@ -279,7 +353,9 @@ class _SupervisorTasksScreenState extends State<SupervisorTasksScreen> with Sing
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         side: BorderSide(color: Colors.grey.shade300),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                   ),
@@ -305,7 +381,7 @@ class _SupervisorTasksScreenState extends State<SupervisorTasksScreen> with Sing
       } else {
         dt = DateTime.tryParse(dateStr);
       }
-      
+
       if (dt != null) {
         String datePart = DateFormat('yyyy-MM-dd').format(dt);
         String timePart = DateFormat('hh:mm').format(dt);
@@ -322,7 +398,10 @@ class _SupervisorTasksScreenState extends State<SupervisorTasksScreen> with Sing
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: isCompleted ? Colors.green.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
+        color:
+            isCompleted
+                ? Colors.green.withValues(alpha: 0.1)
+                : Colors.orange.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(30),
       ),
       child: Text(
@@ -352,4 +431,3 @@ class _SupervisorTasksScreenState extends State<SupervisorTasksScreen> with Sing
     );
   }
 }
-

@@ -25,6 +25,7 @@ class HomeRepository {
           return data;
         }
       } catch (e) {
+        // Fallback to local storage on error
       }
     }
 

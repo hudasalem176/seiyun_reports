@@ -9,20 +9,24 @@ import 'package:seiyun_reports_app/screens/supervisor/TasksScreen/viewmodel/supe
 
 class SupervisorTaskDetailScreen extends StatefulWidget {
   final AssignmentModel task;
-  const SupervisorTaskDetailScreen({Key? key, required this.task}) : super(key: key);
+  const SupervisorTaskDetailScreen({super.key, required this.task});
 
   @override
-  State<SupervisorTaskDetailScreen> createState() => _SupervisorTaskDetailScreenState();
+  State<SupervisorTaskDetailScreen> createState() =>
+      _SupervisorTaskDetailScreenState();
 }
 
-class _SupervisorTaskDetailScreenState extends State<SupervisorTaskDetailScreen> {
+class _SupervisorTaskDetailScreenState
+    extends State<SupervisorTaskDetailScreen> {
   final TextEditingController _commentController = TextEditingController();
   File? _image;
-  bool _isSubmitting = false;
 
   Future<void> _pickImage(ImageSource source) async {
     final ImagePicker picker = ImagePicker();
-    final XFile? photo = await picker.pickImage(source: source, imageQuality: 70);
+    final XFile? photo = await picker.pickImage(
+      source: source,
+      imageQuality: 70,
+    );
     if (photo != null) {
       setState(() {
         _image = File(photo.path);
@@ -46,7 +50,7 @@ class _SupervisorTaskDetailScreenState extends State<SupervisorTaskDetailScreen>
     }
 
     final viewModel = context.read<SupervisorTasksViewModel>();
-    
+
     bool success = await viewModel.confirmTask(
       assignmentId: widget.task.idAssignments,
       note: _commentController.text,
@@ -76,17 +80,16 @@ class _SupervisorTaskDetailScreenState extends State<SupervisorTaskDetailScreen>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isCompleted = widget.task.status == 'تم الحل' || 
-                        widget.task.status == 'solved' || 
-                        widget.task.status == 'مكتملة' ||
-                        widget.task.status == 'completed';
+    final isCompleted =
+        widget.task.status == 'تم الحل' ||
+        widget.task.status == 'solved' ||
+        widget.task.status == 'مكتملة' ||
+        widget.task.status == 'completed';
 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('تفاصيل المهمة'),
-        ),
+        appBar: AppBar(title: const Text('تفاصيل المهمة')),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -94,7 +97,7 @@ class _SupervisorTaskDetailScreenState extends State<SupervisorTaskDetailScreen>
             children: [
               _buildTaskInfoCard(isDark),
               const SizedBox(height: 30),
-              
+
               if (isCompleted) ...[
                 Text(
                   "إثبات المعالجة",
@@ -105,7 +108,7 @@ class _SupervisorTaskDetailScreenState extends State<SupervisorTaskDetailScreen>
                   ),
                 ),
                 const SizedBox(height: 15),
-                
+
                 if (widget.task.confirmationImage != null)
                   ClipRRect(
                     borderRadius: BorderRadius.circular(15),
@@ -114,29 +117,41 @@ class _SupervisorTaskDetailScreenState extends State<SupervisorTaskDetailScreen>
                       width: double.infinity,
                       height: 200,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        height: 100,
-                        color: Colors.grey.withOpacity(0.1),
-                        child: const Center(child: Icon(Icons.broken_image, color: Colors.grey)),
-                      ),
+                      errorBuilder:
+                          (context, error, stackTrace) => Container(
+                            height: 100,
+                            color: Colors.grey.withValues(alpha: 0.1),
+                            child: const Center(
+                              child: Icon(
+                                Icons.broken_image,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
                     ),
                   ),
                 const SizedBox(height: 15),
-                
+
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
-                    color: AppTheme.accentGreen.withOpacity(0.05),
+                    color: AppTheme.accentGreen.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(15),
-                    border: Border.all(color: AppTheme.accentGreen.withOpacity(0.2)),
+                    border: Border.all(
+                      color: AppTheme.accentGreen.withValues(alpha: 0.2),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         "ملاحظة المشرف عند الإغلاق:",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: Colors.grey,
+                        ),
                       ),
                       const SizedBox(height: 5),
                       Text(
@@ -159,17 +174,22 @@ class _SupervisorTaskDetailScreenState extends State<SupervisorTaskDetailScreen>
                   ),
                 ),
                 const SizedBox(height: 15),
-                
+
                 Container(
                   decoration: BoxDecoration(
                     color: isDark ? Colors.grey.shade900 : Colors.grey.shade50,
                     borderRadius: BorderRadius.circular(15),
-                    border: Border.all(color: isDark ? Colors.grey.shade800 : Colors.grey.shade200),
+                    border: Border.all(
+                      color:
+                          isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+                    ),
                   ),
                   child: TextField(
                     controller: _commentController,
                     maxLines: 4,
-                    style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
+                    style: TextStyle(
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
+                    ),
                     decoration: const InputDecoration(
                       hintText: "أضف تعليقك حول الإجراء المتخذ ...",
                       hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
@@ -179,7 +199,7 @@ class _SupervisorTaskDetailScreenState extends State<SupervisorTaskDetailScreen>
                   ),
                 ),
                 const SizedBox(height: 20),
-                
+
                 Text(
                   "صورة الإثبات *",
                   style: TextStyle(
@@ -190,9 +210,9 @@ class _SupervisorTaskDetailScreenState extends State<SupervisorTaskDetailScreen>
                 ),
                 const SizedBox(height: 10),
                 _buildImagePicker(isDark),
-                
+
                 const SizedBox(height: 40),
-                
+
                 SizedBox(
                   width: double.infinity,
                   height: 55,
@@ -207,12 +227,18 @@ class _SupervisorTaskDetailScreenState extends State<SupervisorTaskDetailScreen>
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
-                        child: viewModel.isLoading
-                            ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text(
-                                "تحديث وإغلاق البلاغ",
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
+                        child:
+                            viewModel.isLoading
+                                ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                                : const Text(
+                                  "تحديث وإغلاق البلاغ",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                       );
                     },
                   ),
@@ -231,10 +257,12 @@ class _SupervisorTaskDetailScreenState extends State<SupervisorTaskDetailScreen>
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: isDark ? Colors.grey.shade800 : Colors.grey.shade100),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -248,10 +276,13 @@ class _SupervisorTaskDetailScreenState extends State<SupervisorTaskDetailScreen>
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryColor.withOpacity(0.1),
+                  color: AppTheme.primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(CupertinoIcons.doc_text, color: AppTheme.primaryColor),
+                child: const Icon(
+                  CupertinoIcons.doc_text,
+                  color: AppTheme.primaryColor,
+                ),
               ),
               const SizedBox(width: 15),
               Expanded(
@@ -260,7 +291,10 @@ class _SupervisorTaskDetailScreenState extends State<SupervisorTaskDetailScreen>
                   children: [
                     Text(
                       widget.task.title,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
                     ),
                     Text(
                       "رقم البلاغ: #${widget.task.reportId}",
@@ -272,7 +306,10 @@ class _SupervisorTaskDetailScreenState extends State<SupervisorTaskDetailScreen>
             ],
           ),
           const Divider(height: 30),
-          _buildInfoRow(CupertinoIcons.location, "${widget.task.area} - ${widget.task.square}"),
+          _buildInfoRow(
+            CupertinoIcons.location,
+            "${widget.task.area} - ${widget.task.square}",
+          ),
           const SizedBox(height: 10),
           _buildInfoRow(CupertinoIcons.calendar, widget.task.assignedAt),
         ],
@@ -295,28 +332,29 @@ class _SupervisorTaskDetailScreenState extends State<SupervisorTaskDetailScreen>
       onTap: () {
         showModalBottomSheet(
           context: context,
-          builder: (context) => SafeArea(
-            child: Wrap(
-              children: [
-                ListTile(
-                  leading: const Icon(CupertinoIcons.camera),
-                  title: const Text('الكاميرا'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _pickImage(ImageSource.camera);
-                  },
+          builder:
+              (context) => SafeArea(
+                child: Wrap(
+                  children: [
+                    ListTile(
+                      leading: const Icon(CupertinoIcons.camera),
+                      title: const Text('الكاميرا'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _pickImage(ImageSource.camera);
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(CupertinoIcons.photo),
+                      title: const Text('المعرض'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _pickImage(ImageSource.gallery);
+                      },
+                    ),
+                  ],
                 ),
-                ListTile(
-                  leading: const Icon(CupertinoIcons.photo),
-                  title: const Text('المعرض'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _pickImage(ImageSource.gallery);
-                  },
-                ),
-              ],
-            ),
-          ),
+              ),
         );
       },
       child: Container(
@@ -330,19 +368,27 @@ class _SupervisorTaskDetailScreenState extends State<SupervisorTaskDetailScreen>
             style: _image == null ? BorderStyle.solid : BorderStyle.none,
           ),
         ),
-        child: _image != null
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: Image.file(_image!, fit: BoxFit.cover),
-              )
-            : const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(CupertinoIcons.camera_fill, color: Colors.grey, size: 40),
-                  SizedBox(height: 10),
-                  Text("اضغط لإضافة صورة", style: TextStyle(color: Colors.grey)),
-                ],
-              ),
+        child:
+            _image != null
+                ? ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Image.file(_image!, fit: BoxFit.cover),
+                )
+                : const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      CupertinoIcons.camera_fill,
+                      color: Colors.grey,
+                      size: 40,
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      "اضغط لإضافة صورة",
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ],
+                ),
       ),
     );
   }

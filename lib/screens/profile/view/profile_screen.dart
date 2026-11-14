@@ -9,6 +9,7 @@ import 'package:seiyun_reports_app/screens/profile/view/widgets/logout_button.da
 import 'package:seiyun_reports_app/screens/my_reports/view/my_reports_page.dart';
 import 'package:seiyun_reports_app/screens/support/view/help_center_screen.dart';
 import 'package:seiyun_reports_app/screens/support/view/about_app_screen.dart';
+import 'package:seiyun_reports_app/screens/profile/view/account_security_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -74,6 +75,21 @@ class ProfileScreen extends StatelessWidget {
                                   context,
                                   viewModel,
                                 ),
+                          ),
+                          SettingsItem(
+                            icon: Icons.shield_outlined,
+                            title: "أمان الحساب",
+                            subtitle: "كلمة المرور، البريد الإلكتروني، حذف الحساب",
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) =>
+                                          const AccountSecurityScreen(),
+                                ),
+                              );
+                            },
                           ),
                           SettingsItem(
                             icon: Icons.notifications_active_outlined,

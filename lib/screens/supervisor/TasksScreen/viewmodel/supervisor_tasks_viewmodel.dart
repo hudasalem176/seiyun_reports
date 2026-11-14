@@ -19,6 +19,10 @@ class SupervisorTasksViewModel extends ChangeNotifier {
   void _startAutoRefresh() {
     _autoRefreshTimer?.cancel();
     _autoRefreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      // توفير البطارية والإنترنت: لا تحديث أثناء وجود التطبيق في الخلفية.
+      if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+        return;
+      }
       fetchAssignments(showLoading: false);
     });
   }
@@ -41,6 +45,7 @@ class SupervisorTasksViewModel extends ChangeNotifier {
     try {
       _assignments = await _repository.getAssignments();
     } catch (e) {
+      // Ignored error during assignments fetch
     } finally {
       if (showLoading) {
         _isLoading = false;

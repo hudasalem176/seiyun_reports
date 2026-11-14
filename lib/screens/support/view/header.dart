@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:seiyun_reports_app/core/theme/app_theme.dart';
 
 class SupportHeader extends StatelessWidget {
@@ -36,9 +35,7 @@ class SupportHeader extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(
-                width: 48,
-              ), 
+              const SizedBox(width: 48),
             ],
           ),
         ],

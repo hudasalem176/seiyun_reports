@@ -85,32 +85,6 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  void _showMarkerDetails(BuildContext ctx, MapViewModel mapVM) {
-    final info = mapVM.tappedInfo;
-    if (info == null) return;
-
-    final bool isContainer = info['type'] == 'container';
-
-    showModalBottomSheet(
-      context: ctx,
-      backgroundColor: Colors.transparent,
-      builder:
-          (_) => _MarkerBottomSheet(
-            info: info,
-            isContainer: isContainer,
-            onNavigate:
-                isContainer
-                    ? () {
-                      Navigator.pop(ctx);
-                      _openExternalMap(
-                        LatLng(info['lat'] as double, info['lng'] as double),
-                      );
-                    }
-                    : null,
-          ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final mapVM = context.watch<MapViewModel>();
@@ -772,65 +746,3 @@ class _DistanceIndicator extends StatelessWidget {
 // ════════════════════════════════════════════════
 //  Bottom Sheet التفاصيل (unused but kept for future use)
 // ════════════════════════════════════════════════
-class _MarkerBottomSheet extends StatelessWidget {
-  final Map<String, dynamic> info;
-  final bool isContainer;
-  final VoidCallback? onNavigate;
-
-  const _MarkerBottomSheet({
-    required this.info,
-    required this.isContainer,
-    this.onNavigate,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            isContainer
-                ? (info['name'] ?? 'حاوية نفايات')
-                : 'بلاغ رقم ${info['id']}',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-          ),
-          if (!isContainer) ...[
-            const SizedBox(height: 8),
-            _StatusBadge(status: info['status'] ?? ''),
-          ],
-          const SizedBox(height: 20),
-          if (onNavigate != null)
-            ElevatedButton.icon(
-              onPressed: onNavigate,
-              icon: const Icon(Icons.navigation_outlined),
-              label: const Text('الذهاب إلى الموقع'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryColor,
-                foregroundColor: Colors.white,
-                minimumSize: const Size(double.infinity, 48),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}

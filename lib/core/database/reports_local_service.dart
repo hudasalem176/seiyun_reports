@@ -112,7 +112,6 @@ class ReportsLocalService {
     await batch.commit(noResult: true);
   }
 
-
   /// جلب بلاغات المواطنين العامة المخزنة محلياً
   Future<List<CitizenReportModel>> getLocalCitizenReports() async {
     final db = await _dbHelper.database;
@@ -127,12 +126,17 @@ class ReportsLocalService {
       try {
         reports.add(CitizenReportModel.fromMap(map));
       } catch (e) {
+        // Ignore invalid report models from database
       }
     }
     return reports;
   }
+
   /// زيادة عدد المشاهدات لبلاغ معين محلياً بالقيمة الجديدة مباشرة
-  Future<void> incrementCitizenReportView(int reportId, int newViewsCount) async {
+  Future<void> incrementCitizenReportView(
+    int reportId,
+    int newViewsCount,
+  ) async {
     final db = await _dbHelper.database;
     await db.update(
       'citizen_reports',
@@ -143,14 +147,15 @@ class ReportsLocalService {
   }
 
   /// تحديث حالة الإعجاب والعداد الخاص به محلياً فوراً
-  Future<void> updateCitizenReportLikeLocal(int reportId, bool isLiked, int likesCount) async {
+  Future<void> updateCitizenReportLikeLocal(
+    int reportId,
+    bool isLiked,
+    int likesCount,
+  ) async {
     final db = await _dbHelper.database;
     await db.update(
       'citizen_reports',
-      {
-        'isLiked': isLiked ? 1 : 0,
-        'likesCount': likesCount,
-      },
+      {'isLiked': isLiked ? 1 : 0, 'likesCount': likesCount},
       where: 'id = ?',
       whereArgs: [reportId],
     );

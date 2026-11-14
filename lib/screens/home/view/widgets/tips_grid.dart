@@ -29,7 +29,10 @@ class TipsGrid extends StatelessWidget {
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: Colors.orange.withOpacity(0.2), width: 1),
+            border: Border.all(
+              color: Colors.orange.withValues(alpha: 0.2),
+              width: 1,
+            ),
           ),
           child: Column(
             children: [

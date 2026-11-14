@@ -8,22 +8,22 @@ class MapZonesScreen extends StatefulWidget {
   final LatLng? initialLocation;
   final String? initialTitle;
 
-  const MapZonesScreen({Key? key, this.initialLocation, this.initialTitle}) : super(key: key);
+  const MapZonesScreen({super.key, this.initialLocation, this.initialTitle});
 
   @override
-  _MapZonesScreenState createState() => _MapZonesScreenState();
+  State<MapZonesScreen> createState() => _MapZonesScreenState();
 }
 
 class _MapZonesScreenState extends State<MapZonesScreen> {
-  Set<Polygon> _polygons = {};
-  Set<Marker> _markers = {};
+  final Set<Polygon> _polygons = {};
+  final Set<Marker> _markers = {};
   GoogleMapController? mapController;
 
   @override
   void initState() {
     super.initState();
     _loadAllZones();
-    
+
     if (widget.initialLocation != null) {
       _markers.add(
         Marker(
@@ -38,9 +38,9 @@ class _MapZonesScreenState extends State<MapZonesScreen> {
 
   Future<void> _loadAllZones() async {
     await _loadGeoJson('json/boundary_sayun.json', isBoundary: true);
-    
+
     await _loadGeoJson('json/upload_zones.json');
-    
+
     await _loadGeoJson('json/sweep_zones.json');
   }
 
@@ -48,7 +48,7 @@ class _MapZonesScreenState extends State<MapZonesScreen> {
     final Random random = Random();
     return Color.fromARGB(
       255,
-      random.nextInt(200) + 55, 
+      random.nextInt(200) + 55,
       random.nextInt(200) + 55,
       random.nextInt(200) + 55,
     );
@@ -64,26 +64,33 @@ class _MapZonesScreenState extends State<MapZonesScreen> {
 
       for (var feature in features) {
         if (feature['geometry']['type'] == 'Polygon') {
-          final List<dynamic> coordinates = feature['geometry']['coordinates'][0];
-          
-          List<LatLng> polygonPoints = coordinates.map((coord) {
-            return LatLng(coord[1], coord[0]);
-          }).toList();
+          final List<dynamic> coordinates =
+              feature['geometry']['coordinates'][0];
 
-          final String name = feature['properties']['Name'] ?? 'منطقة غير مسماة';
-          
+          List<LatLng> polygonPoints =
+              coordinates.map((coord) {
+                return LatLng(coord[1], coord[0]);
+              }).toList();
+
+          final String name =
+              feature['properties']['Name'] ?? 'منطقة غير مسماة';
+
           final Color zoneColor = isBoundary ? Colors.blue : _getRandomColor();
-          final Color fill = isBoundary ? zoneColor.withOpacity(0.05) : zoneColor.withOpacity(0.3);
-          final Color stroke = isBoundary ? zoneColor.withOpacity(0.5) : zoneColor;
+          final Color fill =
+              isBoundary
+                  ? zoneColor.withValues(alpha: 0.05)
+                  : zoneColor.withValues(alpha: 0.3);
+          final Color stroke =
+              isBoundary ? zoneColor.withValues(alpha: 0.5) : zoneColor;
 
           newPolygons.add(
             Polygon(
-              polygonId: PolygonId(name + path), 
+              polygonId: PolygonId(name + path),
               points: polygonPoints,
               fillColor: fill,
               strokeColor: stroke,
               strokeWidth: isBoundary ? 3 : 2,
-              consumeTapEvents: true, 
+              consumeTapEvents: true,
               onTap: () {
                 _showZoneDetails(name);
               },
@@ -96,6 +103,7 @@ class _MapZonesScreenState extends State<MapZonesScreen> {
         _polygons.addAll(newPolygons);
       });
     } catch (e) {
+      // Error loading or parsing GeoJSON
     }
   }
 
@@ -124,7 +132,7 @@ class _MapZonesScreenState extends State<MapZonesScreen> {
       ),
       body: GoogleMap(
         initialCameraPosition: CameraPosition(
-          target: widget.initialLocation ?? const LatLng(15.938833, 48.819307), 
+          target: widget.initialLocation ?? const LatLng(15.938833, 48.819307),
           zoom: widget.initialLocation != null ? 16 : 13,
         ),
         polygons: _polygons,

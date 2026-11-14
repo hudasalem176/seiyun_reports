@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:seiyun_reports_app/core/theme/app_theme.dart';
 import 'package:seiyun_reports_app/screens/supervisor/TasksScreen/models/assignment_model.dart';
 
 class SupervisorTaskCompletionDetailScreen extends StatelessWidget {
   final AssignmentModel task;
 
-  const SupervisorTaskCompletionDetailScreen({Key? key, required this.task}) : super(key: key);
+  const SupervisorTaskCompletionDetailScreen({super.key, required this.task});
 
   @override
   Widget build(BuildContext context) {
@@ -25,22 +24,22 @@ class SupervisorTaskCompletionDetailScreen extends StatelessWidget {
           child: Column(
             children: [
               _buildStatusHeader(),
-              
+
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildComparisonSection(context, isDark),
-                    
+
                     const SizedBox(height: 30),
-                    
+
                     _buildNotesSection(isDark),
-                    
+
                     const SizedBox(height: 30),
-                    
+
                     _buildTaskSummary(isDark),
-                    
+
                     const SizedBox(height: 40),
                   ],
                 ),
@@ -57,9 +56,11 @@ class SupervisorTaskCompletionDetailScreen extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
       decoration: BoxDecoration(
-        color: AppTheme.accentGreen.withOpacity(0.1),
+        color: AppTheme.accentGreen.withValues(alpha: 0.1),
         border: Border(
-          bottom: BorderSide(color: AppTheme.accentGreen.withOpacity(0.2)),
+          bottom: BorderSide(
+            color: AppTheme.accentGreen.withValues(alpha: 0.2),
+          ),
         ),
       ),
       child: Row(
@@ -119,7 +120,7 @@ class SupervisorTaskCompletionDetailScreen extends StatelessWidget {
               child: _buildImageCard(
                 context,
                 "بعد المعالجة",
-                task.confirmationImage ?? task.reportImage, 
+                task.confirmationImage ?? task.reportImage,
                 AppTheme.accentGreen,
               ),
             ),
@@ -129,7 +130,12 @@ class SupervisorTaskCompletionDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildImageCard(BuildContext context, String label, String imageUrl, Color color) {
+  Widget _buildImageCard(
+    BuildContext context,
+    String label,
+    String imageUrl,
+    Color color,
+  ) {
     return Column(
       children: [
         Container(
@@ -138,7 +144,7 @@ class SupervisorTaskCompletionDetailScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 10,
                 offset: const Offset(0, 5),
               ),
@@ -149,10 +155,11 @@ class SupervisorTaskCompletionDetailScreen extends StatelessWidget {
             child: Image.network(
               imageUrl,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                color: Colors.grey.shade200,
-                child: const Icon(Icons.broken_image, color: Colors.grey),
-              ),
+              errorBuilder:
+                  (context, error, stackTrace) => Container(
+                    color: Colors.grey.shade200,
+                    child: const Icon(Icons.broken_image, color: Colors.grey),
+                  ),
             ),
           ),
         ),
@@ -160,12 +167,16 @@ class SupervisorTaskCompletionDetailScreen extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
             label,
-            style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: color,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ],
@@ -181,7 +192,7 @@ class SupervisorTaskCompletionDetailScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -192,7 +203,11 @@ class SupervisorTaskCompletionDetailScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.comment_outlined, color: AppTheme.primaryColor, size: 20),
+              Icon(
+                Icons.comment_outlined,
+                color: AppTheme.primaryColor,
+                size: 20,
+              ),
               const SizedBox(width: 10),
               const Text(
                 "ملاحظات الإنجاز النهائية",
@@ -222,9 +237,12 @@ class SupervisorTaskCompletionDetailScreen extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? Colors.blueGrey.shade900.withOpacity(0.3) : Colors.blue.shade50.withOpacity(0.5),
+        color:
+            isDark
+                ? Colors.blueGrey.shade900.withValues(alpha: 0.3)
+                : Colors.blue.shade50.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(25),
-        border: Border.all(color: Colors.blue.withOpacity(0.1)),
+        border: Border.all(color: Colors.blue.withValues(alpha: 0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,10 +261,14 @@ class SupervisorTaskCompletionDetailScreen extends StatelessWidget {
           const SizedBox(height: 15),
           Row(
             children: [
-              Expanded(child: _buildSummaryItem(Icons.location_on_outlined, "المنطقة: ${task.area}  ${task.square}")),
+              Expanded(
+                child: _buildSummaryItem(
+                  Icons.location_on_outlined,
+                  "المنطقة: ${task.area}  ${task.square}",
+                ),
+              ),
             ],
           ),
-        
         ],
       ),
     );
@@ -257,10 +279,7 @@ class SupervisorTaskCompletionDetailScreen extends StatelessWidget {
       children: [
         Icon(icon, size: 14, color: Colors.grey),
         const SizedBox(width: 5),
-        Text(
-          text,
-          style: const TextStyle(fontSize: 12, color: Colors.grey),
-        ),
+        Text(text, style: const TextStyle(fontSize: 12, color: Colors.grey)),
       ],
     );
   }

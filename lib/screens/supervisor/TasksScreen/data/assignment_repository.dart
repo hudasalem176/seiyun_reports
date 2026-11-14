@@ -13,24 +13,26 @@ class AssignmentRepository {
     required AssignmentService remoteService,
     required AssignmentsLocalService localService,
     required NetworkInfo networkInfo,
-  })  : _remoteService = remoteService,
-        _localService = localService,
-        _networkInfo = networkInfo;
+  }) : _remoteService = remoteService,
+       _localService = localService,
+       _networkInfo = networkInfo;
 
   /// جلب كافة المهام (مع التعامل مع الحالات: إنترنت / بدون إنترنت)
   Future<List<AssignmentModel>> getAssignments() async {
     if (await _networkInfo.isConnected) {
       try {
         final response = await _remoteService.getSupervisorAssignments();
-        
+
         if (response.data['status'] == 'success') {
           final List data = response.data['data'];
-          final assignments = data.map((json) => AssignmentModel.fromJson(json)).toList();
-          
+          final assignments =
+              data.map((json) => AssignmentModel.fromJson(json)).toList();
+
           await _localService.saveAssignments(assignments);
           return assignments;
         }
       } catch (e) {
+        // Fallback to local assignments on error
       }
     }
 
@@ -58,12 +60,15 @@ class AssignmentRepository {
         return true;
       }
     } catch (e) {
+      // Remote status update failed
     }
     return false;
   }
 
   /// تأكيد إتمام البلاغ واسترجاع البيانات المحدثة
-  Future<Map<String, dynamic>?> confirmAssignment(ConfirmationModel confirmation) async {
+  Future<Map<String, dynamic>?> confirmAssignment(
+    ConfirmationModel confirmation,
+  ) async {
     if (!await _networkInfo.isConnected) return null;
 
     try {
@@ -73,6 +78,7 @@ class AssignmentRepository {
         return response.data['data'];
       }
     } catch (e) {
+      // Confirmation storage failed
     }
     return null;
   }

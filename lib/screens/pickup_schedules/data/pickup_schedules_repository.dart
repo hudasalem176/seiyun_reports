@@ -35,6 +35,7 @@ class PickupSchedulesRepository {
           return schedules;
         }
       } catch (e) {
+        // Fallback to local data on error
       }
     }
 

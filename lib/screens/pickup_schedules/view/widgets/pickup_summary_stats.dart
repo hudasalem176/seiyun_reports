@@ -65,7 +65,7 @@ class _StatCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -86,7 +86,7 @@ class _StatCard extends StatelessWidget {
             label,
             style: TextStyle(
               fontSize: 13,
-              color: textColor.withOpacity(0.7),
+              color: textColor.withValues(alpha: 0.7),
               fontWeight: FontWeight.w600,
             ),
           ),

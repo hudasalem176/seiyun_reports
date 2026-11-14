@@ -8,7 +8,7 @@ import 'widgets/nearby_container_card.dart';
 import 'widgets/pickup_tips_card.dart';
 
 class PickupSchedulesPage extends StatefulWidget {
-  const PickupSchedulesPage({Key? key}) : super(key: key);
+  const PickupSchedulesPage({super.key});
 
   @override
   State<PickupSchedulesPage> createState() => _PickupSchedulesPageState();

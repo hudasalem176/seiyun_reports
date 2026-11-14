@@ -40,6 +40,10 @@ class PickupSchedulesViewModel extends ChangeNotifier {
   void _startAutoRefresh() {
     _autoRefreshTimer?.cancel();
     _autoRefreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      // توفير البطارية والإنترنت: لا تحديث أثناء وجود التطبيق في الخلفية.
+      if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+        return;
+      }
       fetchData(showLoading: false);
     });
   }
@@ -137,7 +141,9 @@ class PickupSchedulesViewModel extends ChangeNotifier {
             'سيبدأ رفع النفايات في ${schedule.startTime} في مناطق: ${schedule.locations.take(2).join(", ")}',
         scheduledDate: scheduledDate,
       );
-    } catch (e) {}
+    } catch (e) {
+      // Ignore scheduling errors
+    }
   }
 
   @override

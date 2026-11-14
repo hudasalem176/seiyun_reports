@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:seiyun_reports_app/core/auth/session_manager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:seiyun_reports_app/core/utils/pref_helper.dart';
@@ -55,16 +57,25 @@ class ProfileViewModel extends ChangeNotifier {
   String? _phoneErrorMessage;
   String? get phoneErrorMessage => _phoneErrorMessage;
 
+  StreamSubscription<User?>? _authSubscription;
+  bool _disposed = false;
+
   ProfileViewModel(this._repository, this._locationService) {
-    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+    _authSubscription = FirebaseAuth.instance.authStateChanges().listen((
+      User? user,
+    ) {
+      if (_disposed) return;
       if (user != null) {
         // Use Future.microtask to avoid notifyListeners() during widget build
         Future.microtask(() {
+          if (_disposed) return;
           _loadProfileData();
           fetchProfile();
         });
       } else {
-        Future.microtask(() => _clearLocalState());
+        Future.microtask(() {
+          if (!_disposed) _clearLocalState();
+        });
       }
     });
   }
@@ -119,6 +130,7 @@ class ProfileViewModel extends ChangeNotifier {
         );
       }
     } catch (e) {
+      // Profile fetch failed, will use local storage
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -181,6 +193,7 @@ class ProfileViewModel extends ChangeNotifier {
         }
       }
     } catch (e) {
+      // Permission or GPS error
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -340,14 +353,16 @@ class ProfileViewModel extends ChangeNotifier {
         await PrefHelper.saveProfileImagePath(pickedFile.path);
         notifyListeners();
       }
-    } catch (e) {}
+    } catch (e) {
+      // Image picking or upload error
+    }
   }
 
   /// تسجيل خروج المستخدم وتصفير كافة البيانات المحلية والحالة الحالية
   Future<void> logout() async {
-    await PrefHelper.clear();
-    await _auth.signOut();
     _clearLocalState();
+    // تسجيل خروج آمن: إبطال الرمز على الخادم ومسح الرموز والبيانات المحلية.
+    await SessionManager.logout();
   }
 
   /// تفعيل أو تعطيل تلقي التنبيهات
@@ -389,6 +404,7 @@ class ProfileViewModel extends ChangeNotifier {
         _profile = updatedProfile;
       }
     } catch (e) {
+      // Local or remote save failed
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -453,5 +469,12 @@ class ProfileViewModel extends ChangeNotifier {
     _isDarkMode = value;
     await PrefHelper.saveDarkMode(value);
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    _authSubscription?.cancel();
+    super.dispose();
   }
 }

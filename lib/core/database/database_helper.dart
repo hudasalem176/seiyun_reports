@@ -21,7 +21,7 @@ class DatabaseHelper {
     String path = join(await getDatabasesPath(), 'seiyun_reports_v1.db');
     return await openDatabase(
       path,
-      version: 11,
+      version: 12,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -41,6 +41,7 @@ class DatabaseHelper {
           'ALTER TABLE assignments ADD COLUMN confirmation_image TEXT',
         );
       } catch (e) {
+        // Column might already exist
       }
     }
     if (oldVersion < 5) {
@@ -65,9 +66,14 @@ class DatabaseHelper {
     }
     if (oldVersion < 10) {
       try {
-        await db.execute('ALTER TABLE citizen_reports ADD COLUMN likesCount INTEGER DEFAULT 0');
-        await db.execute('ALTER TABLE citizen_reports ADD COLUMN isLiked INTEGER DEFAULT 0');
+        await db.execute(
+          'ALTER TABLE citizen_reports ADD COLUMN likesCount INTEGER DEFAULT 0',
+        );
+        await db.execute(
+          'ALTER TABLE citizen_reports ADD COLUMN isLiked INTEGER DEFAULT 0',
+        );
       } catch (e) {
+        // Migration already handled or columns exist
       }
     }
     if (oldVersion < 6) {
@@ -75,6 +81,7 @@ class DatabaseHelper {
         await db.execute('ALTER TABLE reports ADD COLUMN area_name TEXT');
         await db.execute('ALTER TABLE reports ADD COLUMN square_name TEXT');
       } catch (e) {
+        // Columns already exist
       }
     }
     if (oldVersion < 7) {
@@ -88,10 +95,60 @@ class DatabaseHelper {
     }
     if (oldVersion < 11) {
       try {
-        await db.execute('ALTER TABLE notifications ADD COLUMN user_id TEXT DEFAULT ""');
+        await db.execute(
+          'ALTER TABLE notifications ADD COLUMN user_id TEXT DEFAULT ""',
+        );
       } catch (e) {
+        // Column already exists
       }
     }
+    if (oldVersion < 12) {
+      try {
+        await db.execute('ALTER TABLE reports ADD COLUMN rejection_reason TEXT');
+      } catch (e) {
+        // Column already exists
+      }
+      await _createIndexes(db);
+    }
+  }
+
+  /// فهارس للاستعلامات المتكررة (الإشعارات حسب المستخدم، البلاغات حسب التاريخ).
+  Future<void> _createIndexes(Database db) async {
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_reports_created ON reports(created_at)',
+    );
+  }
+
+  /// الجداول التي تحتوي بيانات خاصة بالمستخدم وتُمسح عند تسجيل الخروج.
+  static const List<String> userDataTables = [
+    'reports',
+    'pending_reports',
+    'citizen_reports',
+    'assignments',
+    'notifications',
+    'home_cache',
+    'pickup_schedules',
+  ];
+
+  /// عدد البلاغات المحفوظة محلياً ولم تُرسل بعد.
+  Future<int> pendingReportsCount() async {
+    final db = await database;
+    final r = await db.rawQuery('SELECT COUNT(*) AS c FROM pending_reports');
+    return (r.first['c'] as int?) ?? 0;
+  }
+
+  /// مسح كل بيانات المستخدم من قاعدة البيانات المحلية (عند تسجيل الخروج أو حذف الحساب)
+  /// حتى لا يطّلع مستخدم آخر على نفس الجهاز على بيانات الحساب السابق.
+  Future<void> clearUserData() async {
+    final db = await database;
+    final batch = db.batch();
+    for (final t in userDataTables) {
+      batch.delete(t);
+    }
+    await batch.commit(noResult: true, continueOnError: true);
   }
 
   /// إنشاء جدول تخزين بيانات الصفحة الرئيسية
@@ -194,7 +251,8 @@ class DatabaseHelper {
         report_type TEXT,
         lat TEXT,
         lng TEXT,
-        created_at TEXT
+        created_at TEXT,
+        rejection_reason TEXT
       )
     ''');
 
@@ -233,5 +291,6 @@ class DatabaseHelper {
     await _createPickupSchedulesTable(db);
     await _createHomeCacheTable(db);
     await _createNotificationsTable(db);
+    await _createIndexes(db);
   }
 }

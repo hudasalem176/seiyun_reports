@@ -8,7 +8,7 @@ import 'package:share_plus/share_plus.dart';
 import '../models/citizen_report_model.dart';
 
 class CitizenReportsPage extends StatelessWidget {
-  const CitizenReportsPage({Key? key}) : super(key: key);
+  const CitizenReportsPage({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -20,6 +20,9 @@ class NotificationViewModel extends ChangeNotifier {
   int get unreadCount => _notifications.where((n) => !n.isRead).length;
 
   StreamSubscription<AppNotification>? _notificationSubscription;
+  StreamSubscription<String>? _tokenSubscription;
+  StreamSubscription<User?>? _authSubscription;
+  bool _disposed = false;
 
   NotificationViewModel(this._repository, this._reportViewModel) {
     _init();
@@ -30,19 +33,25 @@ class NotificationViewModel extends ChangeNotifier {
     await NotificationService.initialize();
 
     _token = await NotificationService.getToken();
+    if (_disposed) return;
     if (_token != null) {
       await _repository.updateFcmToken(_token!);
     }
 
-    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
+    _tokenSubscription = FirebaseMessaging.instance.onTokenRefresh.listen((
+      newToken,
+    ) {
       _token = newToken;
       _repository.updateFcmToken(newToken);
       notifyListeners();
     });
 
-    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+    _authSubscription = FirebaseAuth.instance.authStateChanges().listen((
+      User? user,
+    ) {
       // Use Future.microtask to avoid notifyListeners() during widget build
       Future.microtask(() async {
+        if (_disposed) return;
         if (user != null) {
           await loadNotificationsForUser(user.uid);
         } else {
@@ -68,7 +77,10 @@ class NotificationViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
+    _disposed = true;
     _notificationSubscription?.cancel();
+    _tokenSubscription?.cancel();
+    _authSubscription?.cancel();
     super.dispose();
   }
 

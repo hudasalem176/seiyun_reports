@@ -94,6 +94,10 @@ class CitizenReportsViewModel extends ChangeNotifier {
   void _startAutoRefresh() {
     _autoRefreshTimer?.cancel();
     _autoRefreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      // توفير البطارية والإنترنت: لا تحديث أثناء وجود التطبيق في الخلفية.
+      if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+        return;
+      }
       loadDashboardData(showLoading: false);
     });
   }

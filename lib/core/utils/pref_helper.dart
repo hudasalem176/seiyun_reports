@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:seiyun_reports_app/core/auth/secure_token_storage.dart';
 
 class PrefHelper {
   static SharedPreferences? _prefs;
@@ -36,15 +37,16 @@ class PrefHelper {
   }
 
   /// حفظ التوكن
+  /// يُخزَّن الرمز في التخزين الآمن (Keystore/Keychain) وليس في SharedPreferences.
   static Future<void> saveToken(String token) async {
     final prefs = _prefs!;
-    await prefs.setString(_tokenKey, token);
+    await SecureTokenStorage.saveToken(token);
+    await prefs.remove(_tokenKey);
     await prefs.setBool(_isLoggedInKey, true);
   }
     /// جلب التوكن
   static Future<String?> getToken() async {
-    final prefs = _prefs!;
-    return prefs.getString(_tokenKey);
+    return SecureTokenStorage.getToken();
   }
   /// حفظ حالة تسجيل الدخول للمستخدم
   static Future<void> saveLoginStatus(bool status) async {
@@ -192,6 +194,7 @@ class PrefHelper {
   static Future<void> clear() async {
     final prefs = _prefs!;
     await prefs.clear();
+    await SecureTokenStorage.clear();
   }
 
   /// دالة عامة لحفظ أي نص (نستخدمها للمزامنة)

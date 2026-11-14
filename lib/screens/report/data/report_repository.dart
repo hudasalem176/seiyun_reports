@@ -27,47 +27,19 @@ class ReportRepository {
     bool isConnected = await _networkInfo.isConnected;
 
     if (isConnected) {
-      try {
-        int? userId = await PrefHelper.getUserId();
-
-        Map<String, dynamic> formDataMap = {
-          "citizen_id": userId,
-          "title": title,
-          "description": description,
-          "report_type": type,
-          "priority": priority,
-          "lat": lat,
-          "lng": lng,
-        };
-
-        if (imageFile != null) {
-          String fileName = imageFile.path.split(RegExp(r'[/\\]')).last;
-
-          if (!fileName.contains('.')) {
-            fileName += '.jpg';
-          }
-
-          String extension = fileName.split('.').last.toLowerCase();
-          String mimeType = (extension == 'png') ? 'png' : 'jpeg';
-
-          formDataMap["image"] = await MultipartFile.fromFile(
-            imageFile.path,
-            filename: fileName,
-            contentType: DioMediaType("image", mimeType),
-          );
-        }
-
-        FormData formData = FormData.fromMap(formDataMap);
-
-        final response = await _reportService.createReport(formData);
-
-        if (response.statusCode == 200 || response.statusCode == 201) {
-          return true;
-        }
-      } catch (e) {
-        // فشل الإرسال الفوري
-      }
+      bool uploaded = await _uploadToServer(
+        description: description,
+        title: title,
+        type: type,
+        priority: priority,
+        lat: lat,
+        lng: lng,
+        imageFile: imageFile,
+      );
+      if (uploaded) return true;
     }
+
+    // إذا فشل الاتصال أو فشل الرفع، يحفظ محلياً
     await _saveLocally(
       title,
       description,
@@ -77,7 +49,53 @@ class ReportRepository {
       lng,
       imageFile?.path ?? '',
     );
-    return isConnected ? false : true;
+    return false; // نرجح false ليعرف الـ ViewModel أنه لم يصل للسيرفر مباشرة
+  }
+
+  /// وظيفة داخلية للقيام بعملية الرفع الفعلي للسيرفر
+  Future<bool> _uploadToServer({
+    required String description,
+    required String title,
+    required String type,
+    required String priority,
+    required String lat,
+    required String lng,
+    File? imageFile,
+  }) async {
+    try {
+      int? userId = await PrefHelper.getUserId();
+
+      Map<String, dynamic> formDataMap = {
+        "citizen_id": userId,
+        "title": title,
+        "description": description,
+        "report_type": type,
+        "priority": priority,
+        "lat": lat,
+        "lng": lng,
+      };
+
+      if (imageFile != null && await imageFile.exists()) {
+        String fileName = imageFile.path.split(RegExp(r'[/\\]')).last;
+        if (!fileName.contains('.')) fileName += '.jpg';
+
+        String extension = fileName.split('.').last.toLowerCase();
+        String mimeType = (extension == 'png') ? 'png' : 'jpeg';
+
+        formDataMap["image"] = await MultipartFile.fromFile(
+          imageFile.path,
+          filename: fileName,
+          contentType: DioMediaType("image", mimeType),
+        );
+      }
+
+      FormData formData = FormData.fromMap(formDataMap);
+      final response = await _reportService.createReport(formData);
+
+      return (response.statusCode == 200 || response.statusCode == 201);
+    } catch (e) {
+      return false;
+    }
   }
 
   /// جلب بلاغات المستخدم الحالي مع دعم التخزين المحلي والمزامنة الخلفية
@@ -96,7 +114,7 @@ class ReportRepository {
                   title: map['title'] ?? '',
                   description: map['description'] ?? '',
                   image: map['image_path'] ?? '',
-                  status: 'قيد الإنتظار',
+                  status: 'قيد الانتظار',
                   reportType: map['report_type'] ?? '',
                   lat: map['lat'] ?? '0.0',
                   lng: map['lng'] ?? '0.0',
@@ -159,7 +177,7 @@ class ReportRepository {
     if (pending.isEmpty) return;
 
     for (var data in pending) {
-      bool success = await sendNewReport(
+      bool success = await _uploadToServer(
         title: data['title'],
         description: data['description'],
         type: data['report_type'],

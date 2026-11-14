@@ -4,7 +4,7 @@ import 'package:seiyun_reports_app/core/theme/app_theme.dart';
 class PickupSchedulesHeader extends StatelessWidget {
   final String currentLocation;
 
-  const PickupSchedulesHeader({Key? key, required this.currentLocation}) : super(key: key);
+  const PickupSchedulesHeader({super.key, required this.currentLocation});
 
   @override
   Widget build(BuildContext context) {
@@ -43,19 +43,22 @@ class PickupSchedulesHeader extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withOpacity(0.2)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
             ),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFC0CA33).withOpacity(0.3),
+                    color: const Color(0xFFC0CA33).withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.location_on, color: Color(0xFFC0CA33)),
+                  child: const Icon(
+                    Icons.location_on,
+                    color: Color(0xFFC0CA33),
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(

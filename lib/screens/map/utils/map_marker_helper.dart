@@ -18,7 +18,6 @@ class MapMarkerHelper {
     final ui.PictureRecorder recorder = ui.PictureRecorder();
     final Canvas canvas = Canvas(recorder);
 
-
     // ── رسم الـ Pin Path الاحترافي ────────────────
     final Path pinPath = Path();
     // نقطة البداية (الرأس العلوي)
@@ -85,14 +84,22 @@ class MapMarkerHelper {
       ),
     )..layout();
 
+    // تدوير لتعويض الانقلاب
+    canvas.save();
+    canvas.translate(cx, radius);
+    canvas.rotate(math.pi);
+    canvas.translate(-cx, -radius);
+
     tp.paint(canvas, Offset(cx - tp.width / 2, radius - tp.height / 2));
+
+    canvas.restore();
 
     final ui.Image image = await recorder.endRecording().toImage(
       size.toInt(),
       totalHeight.toInt(),
     );
     final data = await image.toByteData(format: ui.ImageByteFormat.png);
-    return BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
+    return BitmapDescriptor.bytes(data!.buffer.asUint8List());
   }
 
   static Future<BitmapDescriptor> buildCircleMarker({
@@ -107,15 +114,12 @@ class MapMarkerHelper {
     final Canvas canvas = Canvas(recorder);
 
     // ظل
-    final shadowPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.25)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5);
+    final shadowPaint =
+        Paint()
+          ..color = Colors.black.withValues(alpha: 0.25)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5);
 
-    canvas.drawCircle(
-      Offset(radius, radius + 3),
-      radius * 0.85,
-      shadowPaint,
-    );
+    canvas.drawCircle(Offset(radius, radius + 3), radius * 0.85, shadowPaint);
 
     // إطار أبيض
     canvas.drawCircle(
@@ -145,26 +149,24 @@ class MapMarkerHelper {
       ),
     )..layout();
 
-    tp.paint(
-      canvas,
-      Offset(
-        radius - tp.width / 2,
-        radius - tp.height / 2,
-      ),
-    );
+    // تدوير لتعويض الانقلاب في بعض الأنظمة
+    canvas.save();
+    canvas.translate(radius, radius);
+    canvas.rotate(math.pi);
+    canvas.translate(-radius, -radius);
+
+    tp.paint(canvas, Offset(radius - tp.width / 2, radius - tp.height / 2));
+
+    canvas.restore();
 
     final ui.Image image = await recorder.endRecording().toImage(
       size.toInt(),
       size.toInt(),
     );
 
-    final data = await image.toByteData(
-      format: ui.ImageByteFormat.png,
-    );
+    final data = await image.toByteData(format: ui.ImageByteFormat.png);
 
-    return BitmapDescriptor.fromBytes(
-      data!.buffer.asUint8List(),
-    );
+    return BitmapDescriptor.bytes(data!.buffer.asUint8List());
   }
 
   /// الدالة القديمة — متوافقة مع الكود السابق

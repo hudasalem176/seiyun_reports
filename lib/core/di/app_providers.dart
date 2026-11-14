@@ -41,7 +41,7 @@ import 'package:seiyun_reports_app/screens/report/data/report_service.dart';
 import 'package:seiyun_reports_app/screens/report/viewmodel/report_viewmodel.dart';
 
 class AppProviders {
-  static List<SingleChildWidget> providers = [
+  static List<SingleChildWidget> get providers => [
     Provider(create: (_) => ApiService(DioClient())),
     Provider<NetworkInfo>(create: (_) => NetworkInfoImpl(Connectivity())),
     Provider(create: (_) => LocationService()),

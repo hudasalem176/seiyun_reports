@@ -1,13 +1,21 @@
+import 'package:seiyun_reports_app/screens/report/utils/report_guards.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
-import 'package:seiyun_reports_app/screens/citizen_reports/viewmodel/citizen_reports_viewmodel.dart';
 import 'package:seiyun_reports_app/screens/report/models/report_model.dart';
 import '../data/report_repository.dart';
+
+enum ReportSubmissionStatus {
+  success,
+  savedLocally,
+  outsideServiceArea,
+  missingLocation,
+  possibleDuplicate,
+  error,
+}
 
 class ReportViewModel extends ChangeNotifier {
   final ReportRepository _repository;
@@ -34,15 +42,6 @@ class ReportViewModel extends ChangeNotifier {
   bool _isLoadingLocation = false;
   bool get isLoadingLocation => _isLoadingLocation;
 
-  bool _isPhoneVerified = false;
-  bool get isPhoneVerified => _isPhoneVerified;
-
-  bool _isVerifying = false;
-  bool get isVerifying => _isVerifying;
-
-  String? _phoneErrorMessage;
-  String? get phoneErrorMessage => _phoneErrorMessage;
-
   /// تعيين الفئة الرئيسية للبلاغ المحدد وتصفير الفئة الفرعية
   void setCategory(String category) {
     _selectedCategory = category;
@@ -63,6 +62,12 @@ class ReportViewModel extends ChangeNotifier {
   }
 
   /// إزالة الصورة المرفقة بالبلاغ حالياً
+  /// آخر خطأ في التحقق من الصورة (نوع/حجم غير مقبول).
+  String? _imageError;
+  String? get imageError => _imageError;
+
+  void clearImageError() => _imageError = null;
+
   void removeImage() {
     _image = null;
     notifyListeners();
@@ -72,16 +77,23 @@ class ReportViewModel extends ChangeNotifier {
   Future<void> pickImage(ImageSource source) async {
     final ImagePicker picker = ImagePicker();
     try {
+      // تصغير الصورة يقلل استهلاك الإنترنت والذاكرة ووقت الرفع.
       final XFile? photo = await picker.pickImage(
         source: source,
         imageQuality: 70,
+        maxWidth: 1600,
+        maxHeight: 1600,
       );
       if (photo != null) {
-        _image = File(photo.path);
+        final file = File(photo.path);
+        final error = await ReportGuards.validateImage(file);
+        _imageError = error;
+        _image = error == null ? file : null;
         notifyListeners();
       }
     } catch (e) {
-      // تجاهل خطأ التقاط الصورة
+      _imageError = 'تعذر الحصول على الصورة';
+      notifyListeners();
     }
   }
 
@@ -125,6 +137,7 @@ class ReportViewModel extends ChangeNotifier {
     _selectedSubType = null;
     _selectedPriority = 'مرتفعة';
     _image = null;
+    _imageError = null;
     _locationStatus = "يرجى الضغط لتحديد الموقع";
     notifyListeners();
   }
@@ -174,13 +187,15 @@ class ReportViewModel extends ChangeNotifier {
   }
 
   /// إرسال بلاغ جديد إلى الخادم مع التحقق من النطاق الجغرافي والصورة
-  Future<void> sendNewReport(
-    BuildContext context,
+  Future<ReportSubmissionStatus> sendNewReport(
     String description, {
     String? customTitle,
+    bool ignoreDuplicate = false,
   }) async {
+    if (_isUploading) return ReportSubmissionStatus.error; // منع الإرسال المكرر
     _isUploading = true;
     notifyListeners();
+
     String lat = "0.0";
     String lng = "0.0";
     if (_locationStatus.contains(":") && _locationStatus.contains(",")) {
@@ -193,6 +208,15 @@ class ReportViewModel extends ChangeNotifier {
       }
     }
 
+    // الموقع الجغرافي إلزامي لتوجيه البلاغ للفريق الميداني.
+    if (double.tryParse(lat) == null ||
+        double.tryParse(lng) == null ||
+        (double.parse(lat) == 0 && double.parse(lng) == 0)) {
+      _isUploading = false;
+      notifyListeners();
+      return ReportSubmissionStatus.missingLocation;
+    }
+
     if (lat != "0.0" && lng != "0.0") {
       bool isInside = await _isLocationInServiceArea(
         double.parse(lat),
@@ -201,17 +225,7 @@ class ReportViewModel extends ChangeNotifier {
       if (!isInside) {
         _isUploading = false;
         notifyListeners();
-        if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              "عفواً، الموقع المحدد خارج نطاق الخدمة المسموح به (مدينة سيئون).",
-            ),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 4),
-          ),
-        );
-        return;
+        return ReportSubmissionStatus.outsideServiceArea;
       }
     }
 
@@ -240,6 +254,20 @@ class ReportViewModel extends ChangeNotifier {
       mappedType = 'اخرى';
     }
 
+    if (!ignoreDuplicate) {
+      final dup = ReportGuards.findLikelyDuplicate(
+        previous: _reportsList,
+        type: mappedType,
+        lat: double.parse(lat),
+        lng: double.parse(lng),
+      );
+      if (dup != null) {
+        _isUploading = false;
+        notifyListeners();
+        return ReportSubmissionStatus.possibleDuplicate;
+      }
+    }
+
     bool success = await _repository.sendNewReport(
       title: generatedTitle,
       description: description.isEmpty ? "لا يوجد وصف" : description,
@@ -252,40 +280,14 @@ class ReportViewModel extends ChangeNotifier {
 
     _isUploading = false;
     notifyListeners();
+
     if (success) {
       await fetchReportsFromLaravel(isRefresh: true);
-
-      try {
-        if (context.mounted) {
-          Provider.of<CitizenReportsViewModel>(
-            context,
-            listen: false,
-          ).loadDashboardData();
-        }
-      } catch (e) {
-        // خطأ تحديث لوحة التحكم
-      }
-
-      String message = "تمت العملية بنجاح";
       resetFields();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), backgroundColor: Colors.green),
-      );
-      Navigator.pop(context);
+      return ReportSubmissionStatus.success;
     } else {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              "لا يوجد اتصال بالإنترنت حاليًا سيتم رفع البلاغ عند توفر الشبكة.",
-            ),
-            backgroundColor: Colors.blueGrey,
-            duration: Duration(seconds: 5),
-          ),
-        );
-        fetchReportsFromLaravel();
-        Navigator.pop(context);
-      }
+      await fetchReportsFromLaravel();
+      return ReportSubmissionStatus.savedLocally;
     }
   }
 

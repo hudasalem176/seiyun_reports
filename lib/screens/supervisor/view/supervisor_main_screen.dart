@@ -6,7 +6,7 @@ import 'package:seiyun_reports_app/screens/supervisor/Profile/view/supervisor_pr
 import 'package:seiyun_reports_app/screens/map/view/map_zones_screen.dart';
 
 class SupervisorMainScreen extends StatefulWidget {
-  const SupervisorMainScreen({Key? key}) : super(key: key);
+  const SupervisorMainScreen({super.key});
 
   @override
   State<SupervisorMainScreen> createState() => _SupervisorMainScreenState();
@@ -24,16 +24,13 @@ class _SupervisorMainScreenState extends State<SupervisorMainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, -5),
             ),

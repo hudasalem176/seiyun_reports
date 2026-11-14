@@ -55,7 +55,13 @@ class NotificationService {
   static int get _nextId => ++_notifId;
 
   /// تهيئة وإعداد خدمة الإشعارات وتراخيص التطبيق والقنوات الخاصة بها
+  static bool _initialized = false;
+
   static Future<void> initialize() async {
+    // تُستدعى مع كل إنشاء لـ NotificationViewModel؛ التهيئة مرة واحدة فقط
+    // تمنع تكرار مستمعي FCM وظهور الإشعار أكثر من مرة.
+    if (_initialized) return;
+    _initialized = true;
     tz.initializeTimeZones();
 
     final settings = await _messaging.requestPermission(
@@ -143,7 +149,9 @@ class NotificationService {
       try {
         await NotificationDatabase.insertNotification(notification);
         _notificationController.add(notification);
-      } catch (e) {}
+      } catch (e) {
+        // Ignored error during notification insertion
+      }
     }
   }
 
@@ -278,6 +286,8 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
           userId: '',
         ),
       );
-    } catch (e) {}
+    } catch (e) {
+      // Ignored error during background notification insertion
+    }
   }
 }

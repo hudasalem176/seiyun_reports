@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:seiyun_reports_app/screens/notifications/viewmodel/notification_viewmodel.dart';
 import 'package:seiyun_reports_app/screens/notifications/models/notification_model.dart';
 import 'package:seiyun_reports_app/screens/notifications/view/widgets/notifications_header.dart';
-import 'package:intl/intl.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
@@ -52,7 +51,7 @@ class NotificationsScreen extends StatelessWidget {
           Icon(
             Icons.notifications_off_outlined,
             size: 80,
-            color: Colors.grey.withOpacity(0.5),
+            color: Colors.grey.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 20),
           Text(
